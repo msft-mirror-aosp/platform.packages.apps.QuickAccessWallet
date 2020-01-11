@@ -1,0 +1,20 @@
+android_library {
+    name: "QuickAccessWallet-reactive-android",
+    srcs: ["AndroidReactive.kt"],
+    resource_dirs: [],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+    ],
+    static_libs: [
+        "QuickAccessWallet-reactive",
+    ],
+}
+
+java_library {
+    name: "QuickAccessWallet-reactive",
+    srcs: ["Reactive.kt"],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+    ],
+    host_supported: true,
+}

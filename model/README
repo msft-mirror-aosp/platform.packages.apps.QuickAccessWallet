@@ -1,0 +1,9 @@
+This directory contains the functional core of QuickAccessWallet, written without any dependencies
+on the Android framework. This is meant to be easily unit-testable; all necessary Android
+interaction can be injected into the constructors of types defined here.
+
+- common/        :: Interfaces and definitions used throughout the models
+- backend/       :: Converts data to view models
+- view/          :: ViewModel defs, consumed by the Wallet View, and implemented by the backend
+                    models
+- wallet/        :: Model for the wallet UI

@@ -1,0 +1,16 @@
+android_library {
+    name: "QuickAccessWallet-backend",
+    srcs: ["**/*.kt"],
+    resource_dirs: [],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    static_libs: [
+        "QuickAccessWallet-common",
+        "QuickAccessWallet-backend-model",
+        "QuickAccessWallet-reactive",
+        "QuickAccessWallet-reactive-android",
+        "QuickAccessWallet-view-common",
+    ],
+}

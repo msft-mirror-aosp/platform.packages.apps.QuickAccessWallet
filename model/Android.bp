@@ -1,0 +1,55 @@
+java_library {
+    name: "QuickAccessWallet-model",
+    srcs: ["wallet/**/*.kt"],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    host_supported: true,
+    static_libs: [
+        "QuickAccessWallet-common",
+        "QuickAccessWallet-reactive",
+        "QuickAccessWallet-view-common",
+    ],
+}
+
+java_library {
+    name: "QuickAccessWallet-backend-model",
+    srcs: ["backend/**/*.kt"],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    host_supported: true,
+    static_libs: [
+        "QuickAccessWallet-common",
+        "QuickAccessWallet-reactive",
+        "QuickAccessWallet-view-common",
+    ],
+}
+
+java_library {
+    name: "QuickAccessWallet-common",
+    srcs: ["common/**/*.kt"],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    host_supported: true,
+    static_libs: [
+        "QuickAccessWallet-reactive",
+    ],
+}
+
+java_library {
+    name: "QuickAccessWallet-view-common",
+    srcs: ["view/**/*.kt"],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    host_supported: true,
+    static_libs: [
+        "QuickAccessWallet-reactive",
+    ],
+}
