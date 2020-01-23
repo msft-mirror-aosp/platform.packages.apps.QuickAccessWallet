@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+
+    <color name="global_actions_bg_1">#D9000000</color> <!-- 85% -->
+    <color name="global_actions_bg_2">#CC000000</color> <!-- 80% -->
+    <color name="global_actions_bg_3">#B3000000</color> <!-- 70% -->
+    <color name="global_actions_bg_4">#66000000</color> <!-- 40% -->
+    <color name="global_actions_bg_5">#53000000</color> <!-- 32.5% -->
+    <color name="global_actions_bg_6">#4D000000</color> <!-- 30% -->
+    <color name="global_actions_bg_7">#47000000</color> <!-- 27.8% -->
+    <color name="global_actions_bg_8">#33000000</color> <!-- 20% -->
+
+    <array name="global_actions_bg_gradient">
+        <item>@color/global_actions_bg_1</item>
+        <item>@color/global_actions_bg_2</item>
+        <item>@color/global_actions_bg_3</item>
+        <item>@color/global_actions_bg_4</item>
+        <item>@color/global_actions_bg_5</item>
+        <item>@color/global_actions_bg_6</item>
+        <item>@color/global_actions_bg_7</item>
+        <item>@color/global_actions_bg_8</item>
+    </array>
+
+    <array name="global_actions_bg_gradient_positions">
+        <item>0.0</item>
+        <item>0.223</item>
+        <item>0.38</item>
+        <item>0.48</item>
+        <item>0.525</item>
+        <item>0.55</item>
+        <item>0.6</item>
+        <item>1.0</item>
+    </array>
+
+    <color name="emergency_info_peek_color">#C5221F</color>
+    <color name="emergency_info_photo_border">#BDC1C6</color>
+
+</resources>

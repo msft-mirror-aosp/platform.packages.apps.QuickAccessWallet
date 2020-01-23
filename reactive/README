@@ -1,0 +1,9 @@
+Reactive-kt is a simple framework for working with the Observer pattern. It allows for "fluent"
+composition of asynchronous sources of data.
+
+  val numbers: EventStream<Int> = (0..100).asSequence().toEvents()
+  val evens: EventStream<Int> = numbers.filter { it % 2 == 0 }
+  val squared = events.map { it * it }
+  squared.subscribe { textView.setText("Number: $it") }
+
+http://go/wallet-reactive
