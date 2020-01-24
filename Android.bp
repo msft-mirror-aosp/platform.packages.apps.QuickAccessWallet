@@ -1,0 +1,52 @@
+android_library {
+    name: "QuickAccessWallet-lib",
+    srcs: ["lib/**/*.kt"],
+    resource_dirs: [],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    static_libs: [
+        "SystemUIPluginLib",
+        "QuickAccessWallet-common",
+        "QuickAccessWallet-model",
+        "QuickAccessWallet-backend-model",
+        "QuickAccessWallet-reactive",
+        "QuickAccessWallet-reactive-android",
+        "QuickAccessWallet-view",
+        "QuickAccessWallet-view-common",
+    ],
+}
+
+android_app {
+    name: "QuickAccessWallet",
+    srcs: ["src/**/*.kt"],
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+    manifest: "AndroidManifest_App.xml",
+    static_libs: [
+        "SystemUIPluginLib",
+        "QuickAccessWallet-lib",
+        "QuickAccessWallet-common",
+        "QuickAccessWallet-model",
+        "QuickAccessWallet-backend-model",
+        "QuickAccessWallet-backend",
+        "QuickAccessWallet-reactive",
+        "QuickAccessWallet-reactive-android",
+        "QuickAccessWallet-view",
+        "QuickAccessWallet-view-common",
+    ],
+    kotlincflags: [
+        "-Xskip-runtime-version-check",
+        "-Werror"
+    ],
+    optimize: {
+        enabled: true,
+        proguard_flags_files: [
+            "proguard.flags",
+        ],
+    },
+    dxflags: ["--multi-dex"],
+}

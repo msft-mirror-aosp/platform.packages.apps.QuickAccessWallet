@@ -1,0 +1,20 @@
+{
+  "presubmit": [
+    {
+      "name" : "QuickAccessWallet-reactive-tests",
+      "host" : true
+    },
+    {
+      "name" : "QuickAccessWallet-common-tests",
+      "host" : true
+    },
+    {
+      "name" : "QuickAccessWallet-model-tests",
+      "host" : true
+    },
+    {
+      "name" : "QuickAccessWallet-backend-model-tests",
+      "host" : true
+    }
+  ]
+}
