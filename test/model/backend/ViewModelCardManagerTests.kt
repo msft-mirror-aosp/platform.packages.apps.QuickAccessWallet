@@ -16,7 +16,6 @@
 
 package com.android.systemui.plugin.globalactions.wallet.backend.model
 
-import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Disabled
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Failure
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Success
 import com.android.systemui.plugin.globalactions.wallet.common.PendingIntentSender
@@ -40,28 +39,16 @@ class ViewModelCardManagerTests {
 
     @Test
     fun globalActionCards_emitsFailure_ifBackendFails() {
-        val manager = FakeCardManager(eventualOf(Failure<QuickAccessWalletCardData<Any, Any>>("foo")))
-                .toViewModels(
-                        FakePendingIntentSender(),
-                        FakeDrawableCreator(),
-                        FakeBackgroundThreadRunner,
-                        FakeCardSelector()
-                )
+        val manager = FakeCardManager(
+                eventualOf(Failure<QuickAccessWalletCardData<Any, Any>>("foo"))
+        ).toViewModels(
+                FakePendingIntentSender(),
+                FakeDrawableCreator(),
+                FakeBackgroundThreadRunner,
+                FakeCardSelector()
+        )
         val result = manager.globalActionCards.getBlocking()
         assertThat(result).isEqualTo(Failure<Any>("foo"))
-    }
-
-    @Test
-    fun globalActionCards_emitsDisabled_ifBackendIsDisabled() {
-        val manager = FakeCardManager(eventualOf(Disabled<QuickAccessWalletCardData<Any, Any>>()))
-                .toViewModels(
-                        FakePendingIntentSender(),
-                        FakeDrawableCreator(),
-                        FakeBackgroundThreadRunner,
-                        FakeCardSelector()
-                )
-        val result = manager.globalActionCards.getBlocking()
-        assertThat(result).isInstanceOf(Disabled::class.java)
     }
 
     @Test

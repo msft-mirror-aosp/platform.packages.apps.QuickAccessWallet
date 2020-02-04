@@ -46,8 +46,6 @@ interface CardManager<out T> {
         /** A successful result, containing the data queried from the [CardManager] */
         data class Success<T>(val selectedIndex: Int, val cards: Sequence<T>, val numCards: Int) :
                 Result<T>()
-        /** Indicates that the [CardManager] is disabled */
-        class Disabled<T> : Result<T>()
         /** Indicates that an error occurred while querying the [CardManager] */
         data class Failure<T>(val message: CharSequence?) : Result<T>()
     }
@@ -60,7 +58,6 @@ interface CardManager<out T> {
 fun <T, U> Result<T>.map(mapper: (T) -> U): Result<U> =
     when (this) {
         is Result.Success<T> -> Result.Success(selectedIndex, cards.map(mapper), numCards)
-        is Result.Disabled<T> -> Result.Disabled()
         is Result.Failure<T> -> Result.Failure(message)
     }
 

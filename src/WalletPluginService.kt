@@ -47,8 +47,6 @@ class WalletPluginService : GlobalActionsPanelPlugin {
     private var lifetimeSubscription: Subscription? = null
 
     override fun onCreate(sysuiContext: Context, pluginContext: Context) {
-        Log.d("WalletDebug", "onCreate")
-
         // Workaround bug where onCreate is getting invoked multiple times
         lifetimeSubscription?.cancel()
 
@@ -57,8 +55,7 @@ class WalletPluginService : GlobalActionsPanelPlugin {
         val component = WalletLifetimeComponent(
                 pluginContext,
                 sysuiContext,
-                aospBackendComponent,
-                aospBackendComponent.availabilityChecker
+                aospBackendComponent
         ) { panelDeps ->
             object : BackendUiDeps {
                 override val cardDimens = panelDeps.cardDimens

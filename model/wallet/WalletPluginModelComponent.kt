@@ -1,13 +1,11 @@
 package com.android.systemui.plugin.globalactions.wallet.model
 
-import com.android.systemui.plugin.globalactions.wallet.common.BackendAvailabilityChecker
 import com.android.systemui.plugin.globalactions.wallet.common.Combined
 import com.android.systemui.plugin.globalactions.wallet.common.Factory
 import com.android.systemui.plugin.globalactions.wallet.common.Setting
 import com.android.systemui.plugin.globalactions.wallet.common.WalletPluginSubcomponent
 import com.android.systemui.plugin.globalactions.wallet.common.WalletUiModelSubcomponent
 import com.android.systemui.plugin.globalactions.wallet.common.injectDeps
-import com.android.systemui.plugin.globalactions.wallet.common.mergeWith
 import com.android.systemui.plugin.globalactions.wallet.reactive.EventStream
 import com.android.systemui.plugin.globalactions.wallet.view.common.GlobalActionCardViewModel
 
@@ -63,23 +61,20 @@ typealias UiModelComponentFactory<VM, D> =
  *  device.
  * @param walletEnabledSetting [Setting.Provider] that reflects whether or not the user has enabled
  *  Wallet in Settings.
- * @param backendAvailabilityChecker Checks whether or not the Wallet backend is available.
- * @param featureFlag Feature flag controlling querying the backend for availability
+ * @param lockdownSetting [Setting.Provider] that reflects the device lockdown state
  */
 fun <D, VM : GlobalActionCardViewModel> WalletComponentModel(
         backend: WalletPluginSubcomponent<Factory<D, WalletUiModelSubcomponent<VM>>?>,
-        walletAvailableSetting: Setting<Boolean?>,
-        walletEnabledSetting: Setting<Boolean?>,
+        walletAvailableSetting: Setting.Provider<Boolean>,
+        walletEnabledSetting: Setting.Provider<Boolean>,
         deviceProvisionedSetting: Setting.Provider<Boolean>,
-        lockdownSetting: Setting.Provider<Boolean>,
-        backendAvailabilityChecker: BackendAvailabilityChecker
+        lockdownSetting: Setting.Provider<Boolean>
 ): WalletComponentModel<VM, D> =
-        backend.uiSubcomponentToComponent(walletAvailableSetting).guardUiWithSettings(
+        backend.uiSubcomponentToComponent().guardUiWithSettings(
                 deviceProvisionedSetting,
                 lockdownSetting,
                 walletAvailableSetting,
-                walletEnabledSetting,
-                backendAvailabilityChecker
+                walletEnabledSetting
         )
 
 /**
@@ -90,21 +85,15 @@ fun <D, VM : GlobalActionCardViewModel> WalletComponentModel(
  *  wallet in the event the backend reports that it is disabled *after* the UI has been shown.
  */
 /*internal*/ fun <VM : GlobalActionCardViewModel, D>
-WalletPluginSubcomponent<Factory<D, WalletUiModelSubcomponent<VM>>?>.uiSubcomponentToComponent(
-        walletAvailableSetting: Setting<Boolean?>
-): WalletComponentModel<VM, D> =
-        UiComponentWrapper(this, walletAvailableSetting)
+WalletPluginSubcomponent<Factory<D, WalletUiModelSubcomponent<VM>>?>.uiSubcomponentToComponent()
+        : WalletComponentModel<VM, D> = UiComponentWrapper(this)
 
 private class UiComponentWrapper<VM : GlobalActionCardViewModel, D>(
         val walletSubcomponent: WalletPluginSubcomponent<
-                Factory<D, WalletUiModelSubcomponent<VM>>?>,
-        walletAvailableSetting: Setting<Boolean?>
+                Factory<D, WalletUiModelSubcomponent<VM>>?>
 ) : WalletComponentModel<VM, D> {
 
-    val walletDisabler = WalletDisablerImpl(walletAvailableSetting)
-
-    override val pluginLifetimeProcess = walletDisabler
-            .mergeWith(walletSubcomponent.pluginLifetimeProcess)
+    override val pluginLifetimeProcess = walletSubcomponent.pluginLifetimeProcess
 
     override fun getUiScopedSubcomponent() =
             walletSubcomponent.getUiScopedSubcomponent()?.let { factory ->
@@ -129,8 +118,7 @@ private class UiComponentWrapper<VM : GlobalActionCardViewModel, D>(
                                 clicks,
                                 settingsClicks,
                                 onWalletDismissedListener,
-                                lockedErrorMessage,
-                                walletDisabler
+                                lockedErrorMessage
                         )
                     }
                 }
