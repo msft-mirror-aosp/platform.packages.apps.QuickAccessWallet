@@ -22,7 +22,6 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import android.provider.Settings
-import com.android.systemui.plugin.globalactions.wallet.common.BackendAvailabilityChecker
 import com.android.systemui.plugin.globalactions.wallet.common.Combined
 import com.android.systemui.plugin.globalactions.wallet.common.Factory
 import com.android.systemui.plugin.globalactions.wallet.common.Setting
@@ -56,21 +55,21 @@ interface WalletLifetimeComponent :
  *  plugin
  * @param sysuiContext [Context] for SystemUI, used when SystemUI privileges and resources are
  *  needed.
- *
+ * @param backendSubcomponent [WalletPluginSubcomponent] for the backend card provider
+ * @param depsFactory Factory function that generates the UI-scope dependencies for the
+ *  [backendSubcomponent]
  */
 fun <D> WalletLifetimeComponent(
         pluginContext: Context,
         sysuiContext: Context,
         backendSubcomponent: WalletPluginSubcomponent<
                 Factory<D, WalletUiModelSubcomponent<TopLevelViewModel<Drawable>>>?>,
-        availabilityChecker: BackendAvailabilityChecker,
         depsFactory: (PanelComponentDeps) -> D
 ): WalletLifetimeComponent =
         WalletLifetimeComponentImpl(
                 pluginContext,
                 sysuiContext,
                 backendSubcomponent,
-                availabilityChecker,
                 depsFactory
         )
 
@@ -79,47 +78,46 @@ private class WalletLifetimeComponentImpl<D>(
         private val sysuiContext: Context,
         backendSubcomponent: WalletPluginSubcomponent<
                 Factory<D, WalletUiModelSubcomponent<TopLevelViewModel<Drawable>>>?>,
-        availabilityChecker: BackendAvailabilityChecker,
         private val depsFactory: (PanelComponentDeps) -> D
 ) : WalletLifetimeComponent {
 
-    // Device settings
-    val walletAvailableSetting = object : Setting<Boolean?> {
-        private val inner = BooleanSetting(
-                Settings.Secure.GLOBAL_ACTIONS_PANEL_AVAILABLE,
-                sysuiContext.contentResolver
+    override val pluginController = run {
+        // Device settings
+        val walletAvailableSetting =
+                BooleanSetting(
+                        Settings.Secure.GLOBAL_ACTIONS_PANEL_AVAILABLE,
+                        sysuiContext.contentResolver
+                ).provider().map { it ?: false }
+        val walletEnabledSetting =
+                BooleanSetting(
+                        Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED,
+                        sysuiContext.contentResolver
+                ).provider().map { it ?: false }
+        val deviceProvisionedSettingProvider =
+                BooleanSetting(
+                        Settings.Secure.USER_SETUP_COMPLETE,
+                        sysuiContext.contentResolver,
+                        UserHandle.USER_CURRENT
+                ).provider().map { it ?: false }
+        val lockdownSetting = LockdownSetting(sysuiContext)
+
+        val componentModel = WalletComponentModel(
+                backendSubcomponent,
+                walletAvailableSetting,
+                walletEnabledSetting,
+                deviceProvisionedSettingProvider,
+                lockdownSetting
         )
-        override var value: Boolean?
-            get() = inner.value
-            set(_) {}
+
+        componentModel
+                .mapUiScopedSubcomponent { factory ->
+                    factory?.contraMap { deps: PanelComponentDeps -> UiDeps(deps) }
+                }
+                // wrap ui-scoped subcomponent in controller
+                .uiComponentToPanelViewController(pluginContext)
+                // wrap lifetime component in controller
+                .toPluginController()
     }
-    val walletEnabledSetting =
-            BooleanSetting(Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED, sysuiContext.contentResolver)
-    val deviceProvisionedSettingProvider =
-            BooleanSetting(
-                    Settings.Secure.USER_SETUP_COMPLETE,
-                    sysuiContext.contentResolver,
-                    UserHandle.USER_CURRENT
-            ).provider().map { it ?: false }
-    val lockdownSetting = LockdownSetting(sysuiContext)
-
-    val modelComponent = WalletComponentModel(
-            backendSubcomponent,
-            walletAvailableSetting,
-            walletEnabledSetting,
-            deviceProvisionedSettingProvider,
-            lockdownSetting,
-            availabilityChecker
-    )
-
-    override val pluginController = modelComponent
-            .mapUiScopedSubcomponent { factory->
-                factory?.contraMap { deps: PanelComponentDeps -> UiDeps(deps) }
-            }
-            // wrap ui component in controller
-            .uiComponentToPanelViewController(pluginContext)
-            // wrap plugin component in controller
-            .toPluginController()
 
     private inner class UiDeps(private val deps: PanelComponentDeps) :
             Combined<UiModelDependencies<TopLevelViewModel<Drawable>>, D> {

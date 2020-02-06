@@ -17,7 +17,6 @@
 package com.android.systemui.plugin.globalactions.wallet.model
 
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager
-import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Disabled
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Failure
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Success
 import com.android.systemui.plugin.globalactions.wallet.reactive.Eventual
@@ -37,44 +36,6 @@ class CardManagerWithSidePanelTests {
         }
 
         val leftPanelResult = Success(0, sequenceOf(0), 1)
-        val leftPanelManager = object : CardManager<Int> {
-            override val globalActionCards: Eventual<CardManager.Result<Int>>
-                get() = eventualOf(leftPanelResult)
-        }
-
-        val tlvmm = primaryManager.withSidePanel(leftPanelManager)
-        val result = tlvmm.globalActionCards.getBlocking()
-        assertThat(result).isSameAs(primaryResult)
-    }
-
-    @Test
-    fun globalActionCards_disabledWhenPrimaryDisabled() {
-        val primaryResult = Disabled<Int>()
-        val primaryManager = object : CardManager<Int> {
-            override val globalActionCards: Eventual<CardManager.Result<Int>>
-                get() = eventualOf(primaryResult)
-        }
-
-        val leftPanelResult = Success(0, sequenceOf(0), 1)
-        val leftPanelManager = object : CardManager<Int> {
-            override val globalActionCards: Eventual<CardManager.Result<Int>>
-                get() = eventualOf(leftPanelResult)
-        }
-
-        val tlvmm = primaryManager.withSidePanel(leftPanelManager)
-        val result = tlvmm.globalActionCards.getBlocking()
-        assertThat(result).isSameAs(primaryResult)
-    }
-
-    @Test
-    fun globalActionCards_returnPrimaryResult_whenPrimarySuccessful_andLeftPanelDisabled() {
-        val primaryResult = Success(0, sequenceOf(0), 1)
-        val primaryManager = object : CardManager<Int> {
-            override val globalActionCards: Eventual<CardManager.Result<Int>>
-                get() = eventualOf(primaryResult)
-        }
-
-        val leftPanelResult = Disabled<Int>()
         val leftPanelManager = object : CardManager<Int> {
             override val globalActionCards: Eventual<CardManager.Result<Int>>
                 get() = eventualOf(leftPanelResult)

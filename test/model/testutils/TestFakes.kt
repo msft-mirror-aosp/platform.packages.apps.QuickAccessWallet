@@ -16,7 +16,6 @@
 
 package com.android.systemui.plugin.globalactions.wallet.model
 
-import com.android.systemui.plugin.globalactions.wallet.common.BackendAvailabilityChecker
 import com.android.systemui.plugin.globalactions.wallet.common.BackgroundThreadRunner
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager
 import com.android.systemui.plugin.globalactions.wallet.common.OnWalletDismissedListener
@@ -98,9 +97,6 @@ object FakeOnWalletDismissedListener : OnWalletDismissedListener {
 }
 
 class FakeWalletDisabler(override val disableWallet: Completable = completed()) : WalletDisabler
-
-class FakeBackendAvailabilityChecker(override val isAvailable: Eventual<Boolean>) :
-        BackendAvailabilityChecker
 
 class FakeDrawableCreator<D> : DrawableCreator<D, D> {
     private val _drawables = mutableListOf<D>()

@@ -31,14 +31,20 @@ private class CombinedSubcomponentImpl<VM, PD, SD>(
     override val pluginLifetimeProcess = primary.pluginLifetimeProcess
             .mergeWith(secondary.pluginLifetimeProcess)
 
-    override fun getUiScopedSubcomponent() = { deps: Combined<PD, SD> ->
-        val primaryUi = primary.getUiScopedSubcomponent().injectDeps(deps.first)
-        val secondaryUi = secondary.getUiScopedSubcomponent().injectDeps(deps.second)
-        UiSubcomponent(
-                primaryUi.uiCardManager.withSidePanel(secondaryUi.uiCardManager),
-                primaryUi.onWalletDismissedListener.mergeWith(secondaryUi.onWalletDismissedListener)
-        )
-    }
+    override fun getUiScopedSubcomponent() =
+            primary.getUiScopedSubcomponent()?.let { primaryFactory ->
+                secondary.getUiScopedSubcomponent()?.let { secondaryFactory ->
+                    { deps: Combined<PD, SD> ->
+                        val primaryUi = primaryFactory.injectDeps(deps.first)
+                        val secondaryUi = secondaryFactory.injectDeps(deps.second)
+                        UiSubcomponent(
+                                primaryUi.uiCardManager.withSidePanel(secondaryUi.uiCardManager),
+                                primaryUi.onWalletDismissedListener
+                                        .mergeWith(secondaryUi.onWalletDismissedListener)
+                        )
+                    }
+                } ?: { deps: Combined<PD, SD> -> primaryFactory.injectDeps(deps.first) }
+            }
 
     class UiSubcomponent<VM>(
             override val uiCardManager: CardManager<VM>,
