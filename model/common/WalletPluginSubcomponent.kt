@@ -82,4 +82,4 @@ inline fun <A, B, C> Factory<A, B>.map(crossinline f: (B) -> C) = { a: A -> f(th
 
 /** Subcomponent for Wallet, as implemented by the backend. */
 typealias WalletBackendSubcomponent<D, VM> =
-        WalletPluginSubcomponent<Factory<D, WalletUiModelSubcomponent<VM>>>
+        WalletPluginSubcomponent<Factory<D, WalletUiModelSubcomponent<VM>>?>

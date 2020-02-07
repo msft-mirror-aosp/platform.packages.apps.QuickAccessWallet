@@ -32,7 +32,6 @@ import com.android.systemui.plugin.globalactions.wallet.backend.model.DrawableCr
 import com.android.systemui.plugin.globalactions.wallet.backend.model.ModelComponent
 import com.android.systemui.plugin.globalactions.wallet.backend.model.ModelUiDeps
 import com.android.systemui.plugin.globalactions.wallet.backend.model.QuickAccessWalletCardData
-import com.android.systemui.plugin.globalactions.wallet.common.BackendAvailabilityChecker
 import com.android.systemui.plugin.globalactions.wallet.common.BackgroundThreadRunner
 import com.android.systemui.plugin.globalactions.wallet.common.CardDimens
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager
@@ -50,8 +49,13 @@ import com.android.systemui.plugin.globalactions.wallet.reactive.eventualLazy
 import com.android.systemui.plugin.globalactions.wallet.view.common.TopLevelViewModel
 import java.util.function.Consumer
 
+/** Dependencies required to generate cards for Wallet UI, needed at the time the UI is shown */
 interface BackendUiDeps {
+
+    /** Dimensions the cards should be generated at */
     val cardDimens: CardDimens
+
+    /** Used to send a pending intent when a card is clicked */
     val pendingIntentSender: PendingIntentSender<PendingIntent>
 }
 
@@ -64,6 +68,10 @@ private class BackendCardManager(
 
     override val globalActionCards: Eventual<Result<QuickAccessWalletCardData<Icon, PendingIntent>>> =
             eventual {
+                if (!client.isWalletServiceAvailable) {
+                    complete(Result.Failure(null))
+                    return@eventual
+                }
                 val request = GetWalletCardsRequest(
                         cardDimens.cardWidthPx,
                         cardDimens.cardHeightPx,
@@ -81,7 +89,7 @@ private class BackendCardManager(
                                         numCards = cards.size
                                 ))
                             } else {
-                                complete(Result.Failure(null)) //TODO: error message?
+                                complete(Result.Failure(null))
                             }
                         },
                         Consumer<GetWalletCardsError> {
@@ -117,18 +125,19 @@ private class CardSelectorImpl(private val client: QuickAccessWalletClient) : Ca
     }
 }
 
-private class BackendAvailabilityCheckerImpl(
-        client: QuickAccessWalletClient
-) : BackendAvailabilityChecker {
-    override val isAvailable = eventualLazy { client.isWalletServiceAvailable }
-}
-
+/**
+ * Subcomponent definition for this backend, which defines the UI-scope dependencies and the type of
+ * ViewModels generated.
+ */
 interface BackendSubcomponent :
-        WalletBackendSubcomponent<BackendUiDeps, TopLevelViewModel<Drawable>> {
+        WalletBackendSubcomponent<BackendUiDeps, TopLevelViewModel<Drawable>>
 
-    val availabilityChecker: BackendAvailabilityChecker
-}
-
+/**
+ * Factory function for creating the backend subcomponent.
+ *
+ * @param bgThreadRunner Used to dispatch tasks to a background thread
+ * @param context [Context] used to connect to system API and load [Icon]s
+ */
 fun BackendSubcomponent(
         bgThreadRunner: BackgroundThreadRunner,
         context: Context
@@ -146,11 +155,12 @@ private class BackendSubcomponentImpl(
     override val pluginLifetimeProcess: PluginLifetimeProcess
         get() = inner.pluginLifetimeProcess
 
-    override fun getUiScopedSubcomponent() = { deps: BackendUiDeps ->
-        inner.getUiScopedSubcomponent().injectDeps(deps.toModelDeps())
-    }
-
-    override val availabilityChecker = BackendAvailabilityCheckerImpl(client)
+    override fun getUiScopedSubcomponent() =
+        inner.getUiScopedSubcomponent()
+                ?.takeIf { client.isWalletServiceAvailable }
+                ?.let { innerFactory ->
+                    { deps: BackendUiDeps -> innerFactory.injectDeps(deps.toModelDeps()) }
+                }
 
     private fun BackendUiDeps.toModelDeps() = ModelUiDepsImpl(this)
 
