@@ -18,7 +18,6 @@ package com.android.systemui.plugin.globalactions.wallet.backend.model
 
 import com.android.systemui.plugin.globalactions.wallet.common.BackgroundThreadRunner
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager
-import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Disabled
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Failure
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Success
 import com.android.systemui.plugin.globalactions.wallet.common.PendingIntentSender
@@ -113,7 +112,6 @@ private fun <TIcon, TDrawable, TPendingIntent> toViewModelManager(
 
             result.cards.mapIndexed(::toViewModel).toList().zip(::toResult)
         }
-        is Disabled -> eventualOf(Disabled())
         is Failure -> eventualOf(Failure(result.message))
     }
 

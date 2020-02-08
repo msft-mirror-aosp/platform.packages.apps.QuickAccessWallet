@@ -16,7 +16,6 @@
 
 package com.android.systemui.plugin.globalactions.wallet.common
 
-import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Disabled
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Failure
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager.Result.Success
 import com.android.systemui.plugin.globalactions.wallet.reactive.BroadcastingEventSource
@@ -41,13 +40,6 @@ class CardManagerTests {
         assertThat(success.selectedIndex).isEqualTo(0)
         assertThat(success.numCards).isEqualTo(4)
         assertThat(success.cards.toList()).isEqualTo(listOf(1,2,3,4))
-    }
-
-    @Test
-    fun cardManagerResultMap_doesNotAffectDisabled() {
-        val fakeResult = Disabled<Int>()
-        val mappedResult = fakeResult.map { it + 1 }
-        assertThat(mappedResult).isInstanceOf(Disabled::class.java)
     }
 
     @Test
@@ -93,18 +85,6 @@ class CardManagerTests {
     }
 
     @Test
-    fun cardManagerConvert_doesNotAffectDisabledResult() {
-        val fakeResult = Disabled<Int>()
-        val fakeManager = object : CardManager<Int> {
-            override val globalActionCards: Eventual<CardManager.Result<Int>>
-                get() = eventualOf(fakeResult)
-        }
-        val converted = fakeManager.convert { it + 1 }
-        val result = converted.globalActionCards.getBlocking()
-        assertThat(result).isInstanceOf(Disabled::class.java)
-    }
-
-    @Test
     fun cardManagerConvert_doesNotAffectFailureResult() {
         val fakeResult = Failure<Int>("foo")
         val fakeManager = object : CardManager<Int> {
@@ -120,7 +100,7 @@ class CardManagerTests {
 
     @Test
     fun cardManagerAndThen_invokesCallback() {
-        val fakeResult = Disabled<Int>()
+        val fakeResult = Failure<Int>("fnord")
         val fakeResult2 = Failure<Int>("foo")
         val fakeManager = object : CardManager<Int> {
             override val globalActionCards: Eventual<CardManager.Result<Int>>
@@ -143,7 +123,7 @@ class CardManagerTests {
             override val dismissRequest: Completable
                 get() = dismissSource.asCompletable()
         }
-        val chained = fakeManager.andThen { eventualOf(Disabled<Any>()) }
+        val chained = fakeManager.andThen { eventualOf(Failure<Any>("foo")) }
         var completed = false
         chained.dismissRequest.subscribe { completed = true }
         assertThat(completed).isFalse()
