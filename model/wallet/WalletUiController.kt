@@ -13,6 +13,7 @@ import com.android.systemui.plugin.globalactions.wallet.reactive.asEventStream
 import com.android.systemui.plugin.globalactions.wallet.reactive.changes
 import com.android.systemui.plugin.globalactions.wallet.reactive.completableAction
 import com.android.systemui.plugin.globalactions.wallet.reactive.completeWhen
+import com.android.systemui.plugin.globalactions.wallet.reactive.completed
 import com.android.systemui.plugin.globalactions.wallet.reactive.doOnCancel
 import com.android.systemui.plugin.globalactions.wallet.reactive.eventualLazy
 import com.android.systemui.plugin.globalactions.wallet.reactive.filter
@@ -39,7 +40,7 @@ interface SettingsLauncher {
     fun showSettings(): Boolean
 }
 
-/*internal*/ class WalletUiControllerImpl<TViewModel: GlobalActionCardViewModel>(
+/*internal*/ class WalletUiControllerImpl<TViewModel : GlobalActionCardViewModel>(
         private val viewModelManager: CardManager<TViewModel>,
         private val panelAvailableWhenLockedSetting: Setting.Provider<Boolean>,
         private val settingsLauncher: SettingsLauncher,
@@ -50,8 +51,7 @@ interface SettingsLauncher {
         private val clickEvents: EventStream<Int>,
         private val settingsEvents: EventStream<Unit>,
         private val onWalletDismissedListener: OnWalletDismissedListener,
-        private val lockedErrorMessage: CharSequence,
-        private val walletDisabler: WalletDisabler
+        private val lockedErrorMessage: CharSequence
 ) : WalletUiController<TViewModel> {
 
     private val queryCards: Completable =
@@ -61,7 +61,6 @@ interface SettingsLauncher {
                 is Result.Failure -> completableAction {
                     result.message?.let(callbacks::showErrorMessage)
                 }
-                is Result.Disabled -> walletDisabler.disableWallet
             }
         }
 
