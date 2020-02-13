@@ -8,4 +8,6 @@
     <string name="emergency_info_view_all">View all emergency information</string>
     <!-- Content description for emergency icon in the peek view for the emergency info card. [CHAR LIMIT=NONE] -->
     <string name="emergency_info_peek_content_description">emergency information</string>
+    <!-- Message shown when an unknown failure occurred when fetching cards. [CHAR LIMIT=NONE] -->
+    <string name="error_generic">There was a problem getting your cards, please try again later</string>
 </resources>

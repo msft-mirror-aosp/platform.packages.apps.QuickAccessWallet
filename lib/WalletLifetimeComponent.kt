@@ -22,9 +22,9 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.UserHandle
 import android.provider.Settings
+import android.util.Log
 import com.android.systemui.plugin.globalactions.wallet.common.Combined
 import com.android.systemui.plugin.globalactions.wallet.common.Factory
-import com.android.systemui.plugin.globalactions.wallet.common.Setting
 import com.android.systemui.plugin.globalactions.wallet.common.WalletPluginSubcomponent
 import com.android.systemui.plugin.globalactions.wallet.common.WalletUiModelSubcomponent
 import com.android.systemui.plugin.globalactions.wallet.common.contraMap
@@ -37,6 +37,7 @@ import com.android.systemui.plugin.globalactions.wallet.model.SettingsLauncher
 import com.android.systemui.plugin.globalactions.wallet.model.UiModelDependencies
 import com.android.systemui.plugin.globalactions.wallet.model.WalletComponentModel
 import com.android.systemui.plugin.globalactions.wallet.model.toPluginController
+import com.android.systemui.plugin.globalactions.wallet.reactive.AndroidLogger
 import com.android.systemui.plugin.globalactions.wallet.settings.BooleanSetting
 import com.android.systemui.plugin.globalactions.wallet.settings.LockdownSetting
 import com.android.systemui.plugin.globalactions.wallet.view.common.TopLevelViewModel
@@ -106,7 +107,8 @@ private class WalletLifetimeComponentImpl<D>(
                 walletAvailableSetting,
                 walletEnabledSetting,
                 deviceProvisionedSettingProvider,
-                lockdownSetting
+                lockdownSetting,
+                AndroidLogger("QAWallet", Log.DEBUG)
         )
 
         componentModel
