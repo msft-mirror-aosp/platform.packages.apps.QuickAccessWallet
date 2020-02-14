@@ -31,7 +31,8 @@ class GuardUiWithSettingsTests {
                 deviceProvisionedSetting = settingProviderOf(true),
                 lockdownSetting = settingProviderOf(false),
                 walletAvailableSetting = settingProviderOf(true),
-                walletEnabledSetting = settingProviderOf(true)
+                walletEnabledSetting = settingProviderOf(true),
+                logger = FakeLogger
         )
         assertThat(guarded.getUiScopedSubcomponent()).isNotNull()
     }
@@ -45,7 +46,8 @@ class GuardUiWithSettingsTests {
                 deviceProvisionedSetting = settingProviderOf(true),
                 lockdownSetting = settingProviderOf(true),
                 walletAvailableSetting = settingProviderOf(true),
-                walletEnabledSetting = settingProviderOf(true)
+                walletEnabledSetting = settingProviderOf(true),
+                logger = FakeLogger
         )
         assertThat(guarded.getUiScopedSubcomponent()).isNull()
     }

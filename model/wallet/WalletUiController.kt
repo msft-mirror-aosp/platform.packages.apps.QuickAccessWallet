@@ -32,7 +32,7 @@ interface WalletUiController<TViewModel> {
 
 interface WalletUiCallbacks<TViewModel> {
     fun dismissGlobalActionsMenu()
-    fun showErrorMessage(error: CharSequence)
+    fun showErrorMessage(error: CharSequence?)
     fun populateUi(cards: List<TViewModel>, selectedIndex: Int)
 }
 
@@ -59,7 +59,7 @@ interface SettingsLauncher {
             when (result) {
                 is Result.Success -> initializeWalletUI(result, viewModelManager.dismissRequest)
                 is Result.Failure -> completableAction {
-                    result.message?.let(callbacks::showErrorMessage)
+                    callbacks.showErrorMessage(result.message)
                 }
             }
         }
