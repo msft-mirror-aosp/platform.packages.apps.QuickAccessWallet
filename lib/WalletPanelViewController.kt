@@ -83,8 +83,8 @@ class WalletPanelViewController(
                 callbacks.dismissGlobalActionsMenu()
             }
 
-            override fun showErrorMessage(error: CharSequence) {
-                showError(error)
+            override fun showErrorMessage(error: CharSequence?) {
+                showError(error ?: context.resources.getString(R.string.error_generic))
             }
 
             override fun populateUi(cards: List<TopLevelViewModel<Drawable>>, selectedIndex: Int) {
