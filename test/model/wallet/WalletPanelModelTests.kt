@@ -91,12 +91,7 @@ class WalletPanelModelImplTests {
     @Test
     fun dismissRequests_invokeCallbacks_beforeAnyOtherEvents() {
         val dismissRequests = BroadcastingEventSource<Any>()
-        var invokedCount = 0
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun dismissGlobalActionsMenu() {
-                invokedCount++
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         val panel = TestController(
                 dismissRequests = dismissRequests,
                 callbacks = fakeCallbacks
@@ -105,7 +100,7 @@ class WalletPanelModelImplTests {
         dismissRequests.emitEvent(Unit)
         panel.connect()
         dismissRequests.emitEvent(Unit)
-        assertThat(invokedCount).isEqualTo(1)
+        assertThat(fakeCallbacks.dismissGlobalActionsMenuInvocationCount).isEqualTo(1)
     }
 
     @Test
@@ -126,12 +121,7 @@ class WalletPanelModelImplTests {
     @Test
     fun dismissRequests_invokeCallbacks_pendingQuery() {
         val dismissRequests = BroadcastingEventSource<Any>()
-        var invokedCount = 0
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun dismissGlobalActionsMenu() {
-                invokedCount++
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         val panel = TestController(
                 dismissRequests = dismissRequests,
                 callbacks = fakeCallbacks,
@@ -140,7 +130,7 @@ class WalletPanelModelImplTests {
 
         panel.connect()
         dismissRequests.emitEvent(Unit)
-        assertThat(invokedCount).isEqualTo(1)
+        assertThat(fakeCallbacks.dismissGlobalActionsMenuInvocationCount).isEqualTo(1)
     }
 
     @Test
@@ -187,12 +177,7 @@ class WalletPanelModelImplTests {
     @Test
     fun lockEvents_whenLocked_invokeCallbacks_whenUnavailable() {
         val lockEvents = BroadcastingEventSource<Boolean>()
-        var errorCount = 0
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun showErrorMessage(error: CharSequence) {
-                errorCount++
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         var queryCount = 0
         val getCards = eventual<CardManager.Result<TestViewModel>> {
             queryCount++
@@ -208,40 +193,30 @@ class WalletPanelModelImplTests {
         assertThat(queryCount).isEqualTo(0)
         lockEvents.emitEvent(true)
         assertThat(queryCount).isEqualTo(0)
-        assertThat(errorCount).isEqualTo(1)
+        assertThat(fakeCallbacks.errorMessages).hasSize(1)
         lockEvents.emitEvent(true)
         assertThat(queryCount).isEqualTo(0)
-        assertThat(errorCount).isEqualTo(1)
+        assertThat(fakeCallbacks.errorMessages).hasSize(1)
         lockEvents.emitEvent(false)
         assertThat(queryCount).isEqualTo(1)
-        assertThat(errorCount).isEqualTo(1)
+        assertThat(fakeCallbacks.errorMessages).hasSize(1)
     }
 
     @Test
     fun showError_whenCardQueryFails() {
-        val errors = mutableListOf<CharSequence>()
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun showErrorMessage(error: CharSequence) {
-                errors.add(error)
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<Nothing>()
         val panel = TestController(
                 viewModelManager = TestCardManager(eventualOf(Failure("foo"))),
                 callbacks = fakeCallbacks,
                 lockEvents = eventsOf(false)
         )
         panel.connect()
-        assertThat(errors).containsExactly("foo")
+        assertThat(fakeCallbacks.errorMessages).containsExactly("foo")
     }
 
     @Test
     fun invokeCallbacks_afterSuccessfulQuery() {
-        val invocations = mutableListOf<Pair<List<TestViewModel>, Int>>()
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun populateUi(cards: List<TestViewModel>, selectedIndex: Int) {
-                invocations.add(cards to selectedIndex)
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         val viewModel1 = TestViewModel()
         val viewModel2 = TestViewModel()
         val panel = TestController(
@@ -258,7 +233,7 @@ class WalletPanelModelImplTests {
                 lockEvents = eventsOf(false)
         )
         panel.connect()
-        assertThat(invocations).containsExactly(listOf(viewModel1, viewModel2) to 1)
+        assertThat(fakeCallbacks.uiStates).containsExactly(listOf(viewModel1, viewModel2) to 1)
     }
 
     @Test
@@ -308,12 +283,7 @@ class WalletPanelModelImplTests {
 
     @Test
     fun clickEvent_doesNotDismiss_whenViewModelClickHandlerHasNoResult() {
-        var invocations = 0
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun dismissGlobalActionsMenu() {
-                invocations++
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         val viewModel = TestViewModel(click = emptyPotential())
         val panel = TestController(
                 viewModelManager = TestCardManager(
@@ -325,17 +295,12 @@ class WalletPanelModelImplTests {
                 clickEvents = eventsOf(0)
         )
         panel.connect()
-        assertThat(invocations).isEqualTo(0)
+        assertThat(fakeCallbacks.dismissGlobalActionsMenuInvocationCount).isEqualTo(0)
     }
 
     @Test
     fun clickEvent_dismissesWallet_whenViewModelClickHandlerHasResult() {
-        var invocations = 0
-        val fakeCallbacks = object : WalletUiCallbacks<TestViewModel> by FakeCallbacks() {
-            override fun dismissGlobalActionsMenu() {
-                invocations++
-            }
-        }
+        val fakeCallbacks = FakeCallbacks<TestViewModel>()
         val viewModel = TestViewModel(click = potentialOf(Unit))
         val panel = TestController(
                 viewModelManager = TestCardManager(
@@ -347,7 +312,7 @@ class WalletPanelModelImplTests {
                 clickEvents = eventsOf(0)
         )
         panel.connect()
-        assertThat(invocations).isEqualTo(1)
+        assertThat(fakeCallbacks.dismissGlobalActionsMenuInvocationCount).isEqualTo(1)
     }
 
     @Test

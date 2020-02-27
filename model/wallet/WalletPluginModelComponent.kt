@@ -7,6 +7,7 @@ import com.android.systemui.plugin.globalactions.wallet.common.WalletPluginSubco
 import com.android.systemui.plugin.globalactions.wallet.common.WalletUiModelSubcomponent
 import com.android.systemui.plugin.globalactions.wallet.common.injectDeps
 import com.android.systemui.plugin.globalactions.wallet.reactive.EventStream
+import com.android.systemui.plugin.globalactions.wallet.reactive.Logger
 import com.android.systemui.plugin.globalactions.wallet.view.common.GlobalActionCardViewModel
 
 /** Dependencies needed in order to instantiate a [UiModelComponent]. */
@@ -68,13 +69,15 @@ fun <D, VM : GlobalActionCardViewModel> WalletComponentModel(
         walletAvailableSetting: Setting.Provider<Boolean>,
         walletEnabledSetting: Setting.Provider<Boolean>,
         deviceProvisionedSetting: Setting.Provider<Boolean>,
-        lockdownSetting: Setting.Provider<Boolean>
+        lockdownSetting: Setting.Provider<Boolean>,
+        logger: Logger
 ): WalletComponentModel<VM, D> =
         backend.uiSubcomponentToComponent().guardUiWithSettings(
                 deviceProvisionedSetting,
                 lockdownSetting,
                 walletAvailableSetting,
-                walletEnabledSetting
+                walletEnabledSetting,
+                logger
         )
 
 /**
@@ -141,4 +144,3 @@ interface PluginControllerComponent<D, UI> {
     /** Plugin controller, receives forwarded calls from plugin. */
     val pluginController: WalletPluginController<D, UI>
 }
-

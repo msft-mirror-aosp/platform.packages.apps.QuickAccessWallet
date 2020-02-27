@@ -47,7 +47,6 @@ import com.android.systemui.plugin.globalactions.wallet.reactive.completableActi
 import com.android.systemui.plugin.globalactions.wallet.reactive.eventual
 import com.android.systemui.plugin.globalactions.wallet.reactive.eventualLazy
 import com.android.systemui.plugin.globalactions.wallet.view.common.TopLevelViewModel
-import java.util.function.Consumer
 
 /** Dependencies required to generate cards for Wallet UI, needed at the time the UI is shown */
 interface BackendUiDeps {
@@ -80,30 +79,33 @@ private class BackendCardManager(
                 )
                 client.getWalletCards(
                         request,
-                        Consumer<GetWalletCardsResponse> { response ->
-                            val cards = response.walletCards
-                            if (cards.size > 0) {
-                                complete(Result.Success(
-                                        selectedIndex = response.selectedIndex,
-                                        cards = cards.asSequence().map(::toModel),
-                                        numCards = cards.size
-                                ))
-                            } else {
-                                complete(Result.Failure(null))
+                        object : QuickAccessWalletClient.OnWalletCardsRetrievedCallback {
+                            override fun onWalletCardsRetrieved(response: GetWalletCardsResponse) {
+                                val cards = response.walletCards
+                                if (cards.size > 0) {
+                                    complete(Result.Success(
+                                            selectedIndex = response.selectedIndex,
+                                            cards = cards.asSequence().map(::toModel),
+                                            numCards = cards.size
+                                    ))
+                                } else {
+                                    complete(Result.Failure(null))
+                                }
                             }
-                        },
-                        Consumer<GetWalletCardsError> {
-                            complete(Result.Failure(it.message))
+
+                            override fun onWalletCardRetrievalError(error: GetWalletCardsError) {
+                                complete(Result.Failure(error.message))
+                            }
                         })
             }
 
     override val dismissRequest: Completable
         get() = completable {
-            client.registerWalletServiceEventListener(Consumer<WalletServiceEvent> { event ->
+            client.addWalletServiceEventListener { event ->
                 if (event.eventType == WalletServiceEvent.TYPE_NFC_PAYMENT_STARTED) {
                     complete(Unit)
                 }
-            })
+            }
         }
 }
 

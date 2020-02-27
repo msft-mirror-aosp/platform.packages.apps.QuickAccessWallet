@@ -16,15 +16,16 @@
 
 package com.android.systemui.plugin.globalactions.wallet.model
 
+import com.android.systemui.plugin.globalactions.wallet.backend.model.CardSelector
+import com.android.systemui.plugin.globalactions.wallet.backend.model.DrawableCreator
 import com.android.systemui.plugin.globalactions.wallet.common.BackgroundThreadRunner
 import com.android.systemui.plugin.globalactions.wallet.common.CardManager
 import com.android.systemui.plugin.globalactions.wallet.common.OnWalletDismissedListener
 import com.android.systemui.plugin.globalactions.wallet.common.PendingIntentSender
 import com.android.systemui.plugin.globalactions.wallet.common.Setting
-import com.android.systemui.plugin.globalactions.wallet.backend.model.CardSelector
-import com.android.systemui.plugin.globalactions.wallet.backend.model.DrawableCreator
 import com.android.systemui.plugin.globalactions.wallet.reactive.Completable
 import com.android.systemui.plugin.globalactions.wallet.reactive.Eventual
+import com.android.systemui.plugin.globalactions.wallet.reactive.Logger
 import com.android.systemui.plugin.globalactions.wallet.reactive.Potential
 import com.android.systemui.plugin.globalactions.wallet.reactive.completableAction
 import com.android.systemui.plugin.globalactions.wallet.reactive.completed
@@ -70,8 +71,8 @@ class FakeCallbacks<T> : WalletUiCallbacks<T> {
     var dismissGlobalActionsMenuInvocationCount: Int = 0
         private set
 
-    private val _errorMessages = mutableListOf<CharSequence>()
-    val errorMessages: List<CharSequence> = _errorMessages
+    private val _errorMessages = mutableListOf<CharSequence?>()
+    val errorMessages: List<CharSequence?> = _errorMessages
 
     private val _uiStates = mutableListOf<Pair<List<T>, Int>>()
     val uiStates: List<Pair<List<T>, Int>> = _uiStates
@@ -79,7 +80,7 @@ class FakeCallbacks<T> : WalletUiCallbacks<T> {
     override fun dismissGlobalActionsMenu() {
         dismissGlobalActionsMenuInvocationCount++
     }
-    override fun showErrorMessage(error: CharSequence) {
+    override fun showErrorMessage(error: CharSequence?) {
         _errorMessages.add(error)
     }
     override fun populateUi(cards: List<T>, selectedIndex: Int) {
@@ -125,3 +126,5 @@ class FakeSettingsLauncher(private val result: Boolean = true) : SettingsLaunche
         return result
     }
 }
+
+val FakeLogger: Logger = { }
