@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"നിങ്ങളുടെ പേയ്‌മെന്റ് വിവരങ്ങൾ ലോഡ് ചെയ്യാൻ നിങ്ങളുടെ ഫോൺ അൺലോക്ക് ചെയ്യുക"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"പവർ മെനുവിലെ കാർഡുകൾക്കും പാസുകൾക്കുമുള്ള ക്രമീകരണം കാണാൻ ടാപ്പ് ചെയ്യുക"</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"결제 정보를 로드하려면 휴대전화의 잠금을 해제하세요."</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"탭하여 전원 메뉴의 카드 및 패스 설정을 확인하세요."</string>
+</resources>
