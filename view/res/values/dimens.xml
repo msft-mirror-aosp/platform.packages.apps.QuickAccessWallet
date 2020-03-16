@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="emergencyinfo_peek_width">145dp</dimen>
-    <dimen name="emergencyinfo_peek_pivotx">@dimen/emergencyinfo_peek_width</dimen>
-</resources>
-

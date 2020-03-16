@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"તમારી ચુકવણી માહિતી લોડ કરવા તમારા ફોનને અનલૉક કરો"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"પાવર મેનૂમાં કાર્ડ અને પાસ માટેનાં સેટિંગ જોવા માટે ટૅપ કરો"</string>
+</resources>
