@@ -19,8 +19,8 @@
           package="com.android.systemui.plugin.globalactions.wallet">
 
     <uses-sdk
-        android:minSdkVersion="29"
-        android:targetSdkVersion="29"/>
+        android:minSdkVersion="30"
+        android:targetSdkVersion="30"/>
 
     <application/>
 </manifest>
