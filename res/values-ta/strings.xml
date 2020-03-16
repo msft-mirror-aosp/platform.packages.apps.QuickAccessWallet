@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"பேமெண்ட் தகவலைக் காட்ட மொபைலை அன்லாக் செய்யவும்"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"பவர் மெனுவிலுள்ள கார்டுகள் &amp; பாஸ்கள் தொடர்பான அமைப்புகளைப் பார்க்க தட்டவும்"</string>
+</resources>
