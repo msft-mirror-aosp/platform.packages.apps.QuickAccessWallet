@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"Unlock your phone to load your payment info"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"Tap to view settings for cards &amp; passes in the power menu"</string>
+</resources>
