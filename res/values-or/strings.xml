@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"ଆପଣଙ୍କର ପେମେଣ୍ଟ ସୂଚନା ଲୋଡ୍ କରିବା ପାଇଁ ଆପଣଙ୍କର ଫୋନ୍‌କୁ ଅନ୍‌ଲକ୍ କରନ୍ତୁ"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"ପାୱର୍ ମେନୁରେ କାର୍ଡ ଓ ପାସ୍‌ଗୁଡ଼ିକର ସେଟିଂସ୍ ଦେଖିବା ପାଇଁ ଟାପ୍ କରନ୍ତୁ"</string>
+</resources>

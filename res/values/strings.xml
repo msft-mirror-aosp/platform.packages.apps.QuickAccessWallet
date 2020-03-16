@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Message shown when launching Wallet before device is unlocked for the first time after a reboot [CHAR LIMIT=NONE] -->
+    <string name="error_user_locked">Unlock your phone to load your payment info</string>
+    <!-- Content description for settings button. [CHAR LIMIT=NONE] -->
+    <string name="global_actions_settings_description">Tap to view settings for cards &amp; passes in the power menu</string>
+    <!-- Message shown at the bottom of the emergency info card, indicating that tapping the card will show all of the user's emergency information. [CHAR LIMIT=75] -->
+    <!-- Content description for emergency icon in the peek view for the emergency info card. [CHAR LIMIT=NONE] -->
+    <!-- Message shown when an unknown failure occurred when fetching cards. [CHAR LIMIT=NONE] -->
+    <string name="error_generic">There was a problem getting your cards, please try again later</string>
+</resources>
