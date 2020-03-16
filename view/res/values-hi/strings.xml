@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_user_locked" msgid="5209473749586235404">"पैसे चुकाने की जानकारी लोड करने के लिए फ़ोन अनलॉक करें"</string>
-    <string name="global_actions_settings_description" msgid="1509614996705592717">"पावर मेन्यू में कार्ड और पास की सेटिंग देखने के लिए टैप करें"</string>
-    <string name="emergency_info_view_all" msgid="925826566296866139">"पूरी आपातकालीन जानकारी देखें"</string>
-    <string name="emergency_info_peek_content_description" msgid="4142905616879750699">"आपातकालीन जानकारी"</string>
-</resources>
