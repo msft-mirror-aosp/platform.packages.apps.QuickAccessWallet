@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"Lås opp telefonen for å laste inn betalingsopplysninger"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"Trykk for å se innstillinger for kort og billetter i av/på-menyen"</string>
+</resources>
