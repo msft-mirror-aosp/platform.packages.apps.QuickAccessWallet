@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="5209473749586235404">"解鎖手機以載入付款資料"</string>
+    <string name="global_actions_settings_description" msgid="1509614996705592717">"輕按即可查看電源選單中的信用卡和票卡設定"</string>
+</resources>
