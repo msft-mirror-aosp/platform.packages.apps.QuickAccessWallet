@@ -1,6 +1,0 @@
-This directory contains the UI Views used by Wallet. Views that are driven by some data do not
-directly access that data, but instead keep it encapsulated behind a ViewModel. If applicable,this
-relationship is defined using generic type parameters on the Views, with a constraint stating that
-the data must implement the required ViewModel in order to be used with this View. This keeps View
-logic as simple as possible, and pushes complex interactions into the ViewModel implementations,
-which should be easy to test in isolation.

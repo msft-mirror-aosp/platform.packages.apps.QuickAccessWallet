@@ -15,24 +15,7 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.systemui.plugin.globalactions.wallet">
-
-    <uses-sdk
-        android:minSdkVersion="30"
-        android:targetSdkVersion="30"/>
-
-    <!-- For using plugins -->
-    <uses-permission android:name="com.android.systemui.permission.PLUGIN" />
-
-    <application>
-
-        <service android:name=".WalletPluginService"
-                 android:exported="false">
-            <intent-filter>
-                <action android:name="com.android.systemui.action.PLUGIN_GLOBAL_ACTIONS_PANEL" />
-            </intent-filter>
-        </service>
-
-    </application>
-</manifest>
+<com.android.systemui.plugin.globalactions.wallet.WalletView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
