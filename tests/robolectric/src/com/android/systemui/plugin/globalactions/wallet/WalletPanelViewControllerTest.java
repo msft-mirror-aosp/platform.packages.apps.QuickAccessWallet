@@ -254,7 +254,7 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
-    public void onWalletServiceEvent_dismissesGlobalActionsMenu() {
+    public void onWalletServiceEvent_tapStarted_dismissesGlobalActionsMenu() {
         mViewController.queryWalletCards();
         verify(mWalletClient).addWalletServiceEventListener(mListenerCaptor.capture());
         WalletServiceEvent event =
@@ -266,6 +266,21 @@ public class WalletPanelViewControllerTest {
         verify(mPluginCallbacks).dismissGlobalActionsMenu();
         verify(mWalletClient).removeWalletServiceEventListener(listener);
         verify(mWalletClient).notifyWalletDismissed();
+    }
+
+    @Test
+    public void onWalletServiceEvent_cardsChanged_requeriesCards() {
+        mViewController.queryWalletCards();
+        verify(mWalletClient).addWalletServiceEventListener(mListenerCaptor.capture());
+        WalletServiceEvent event =
+                new WalletServiceEvent(WalletServiceEvent.TYPE_WALLET_CARDS_UPDATED);
+
+        WalletServiceEventListener listener = mListenerCaptor.getValue();
+        listener.onWalletServiceEvent(event);
+
+        verify(mPluginCallbacks, never()).dismissGlobalActionsMenu();
+        verify(mWalletClient, never()).notifyWalletDismissed();
+        verify(mWalletClient, times(2)).getWalletCards(any(), any(), any());
     }
 
     @Test
