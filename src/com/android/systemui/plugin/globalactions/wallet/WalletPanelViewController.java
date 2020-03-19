@@ -29,6 +29,7 @@ import android.service.quickaccesswallet.QuickAccessWalletClient;
 import android.service.quickaccesswallet.SelectWalletCardRequest;
 import android.service.quickaccesswallet.WalletCard;
 import android.service.quickaccesswallet.WalletServiceEvent;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -195,9 +196,16 @@ public class WalletPanelViewController implements
         if (mIsDismissed) {
             return;
         }
-        if (event.getEventType() == WalletServiceEvent.TYPE_NFC_PAYMENT_STARTED) {
-            mPluginCallbacks.dismissGlobalActionsMenu();
-            onDismissed();
+        switch (event.getEventType()) {
+            case WalletServiceEvent.TYPE_NFC_PAYMENT_STARTED:
+                mPluginCallbacks.dismissGlobalActionsMenu();
+                onDismissed();
+                break;
+            case WalletServiceEvent.TYPE_WALLET_CARDS_UPDATED:
+                queryWalletCards();
+                break;
+            default:
+                Log.w(TAG, "onWalletServiceEvent: Unknown event type");
         }
     }
 
