@@ -24,19 +24,23 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
 import java.util.Collections;
 import java.util.List;
@@ -113,18 +117,18 @@ class WalletCardCarousel extends RecyclerView {
         mCornerRadiusPx = mCardWidthPx * CORNER_RADIUS_RATIO;
         mCardMarginPx = Math.round(screenWidth * CARD_MARGIN_RATIO);
         int totalCardWidth =
-                mCardWidthPx + getResources().getDimensionPixelSize(R.dimen.card_margin);
+                mCardWidthPx + getResources().getDimensionPixelSize(R.dimen.card_margin) * 2;
         mCardEdgeToCenterDistance = totalCardWidth / 2f;
-        int padding = (screenWidth - totalCardWidth) / 2 - mCardMarginPx;
-        padding = Math.max(0, padding); // just in case
-        setPadding(padding, getPaddingTop(), padding, getPaddingBottom());
+        int paddingHorizontal = (screenWidth - totalCardWidth) / 2 - mCardMarginPx;
+        paddingHorizontal = Math.max(0, paddingHorizontal); // just in case
+        setPadding(paddingHorizontal, getPaddingTop(), paddingHorizontal, getPaddingBottom());
         addOnScrollListener(new CardCarouselScrollListener());
         new CarouselSnapHelper().attachToRecyclerView(this);
         mWalletCardAdapter = new WalletCardAdapter();
         mWalletCardAdapter.setHasStableIds(true);
         setAdapter(mWalletCardAdapter);
-        setMinimumHeight(getMinimumHeight() + mCardHeightPx);
         mOnTapGestureDetector = new GestureDetector(context, new OnTapGestureDetector());
+        ViewCompat.setAccessibilityDelegate(this, new CardCarouselAccessibilityDelegate(this));
     }
 
     @Override
@@ -344,8 +348,8 @@ class WalletCardCarousel extends RecyclerView {
 
         WalletCardViewHolder(View view) {
             super(view);
-            cardView = view.findViewById(R.id.Card);
-            imageView = cardView.findViewById(R.id.Image);
+            cardView = view.requireViewById(R.id.card);
+            imageView = cardView.requireViewById(R.id.image);
         }
     }
 
@@ -424,6 +428,23 @@ class WalletCardCarousel extends RecyclerView {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             return true;
+        }
+    }
+
+    private class CardCarouselAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
+
+        private CardCarouselAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
+            super(recyclerView);
+        }
+
+        @Override
+        public boolean onRequestSendAccessibilityEvent(
+                ViewGroup viewGroup, View view, AccessibilityEvent accessibilityEvent) {
+            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
+                Log.e("FELIX", String.format("CardCarouselAccessibilityDelegate onRequestSendAccessibilityEvent: focus"));
+                scrollToPosition(getChildAdapterPosition(view));
+            }
+            return super.onRequestSendAccessibilityEvent(viewGroup, view, accessibilityEvent);
         }
     }
 }
