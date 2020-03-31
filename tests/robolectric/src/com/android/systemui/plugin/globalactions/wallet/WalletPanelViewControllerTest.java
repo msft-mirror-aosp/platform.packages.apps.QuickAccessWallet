@@ -19,16 +19,19 @@ package com.android.systemui.plugin.globalactions.wallet;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.service.quickaccesswallet.GetWalletCardsError;
@@ -36,12 +39,15 @@ import android.service.quickaccesswallet.GetWalletCardsRequest;
 import android.service.quickaccesswallet.GetWalletCardsResponse;
 import android.service.quickaccesswallet.QuickAccessWalletClient;
 import android.service.quickaccesswallet.QuickAccessWalletClient.WalletServiceEventListener;
+import android.service.quickaccesswallet.QuickAccessWalletService;
 import android.service.quickaccesswallet.SelectWalletCardRequest;
 import android.service.quickaccesswallet.WalletCard;
 import android.service.quickaccesswallet.WalletServiceEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,9 +64,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLog;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -69,7 +75,15 @@ import java.util.List;
 public class WalletPanelViewControllerTest {
 
     private static final int MAX_CARDS = 10;
-    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private static final CharSequence SHORTCUT_SHORT_LABEL = "View all";
+    private static final CharSequence SHORTCUT_LONG_LABEL = "Add a payment method";
+    private static final CharSequence SERVICE_LABEL = "Wallet app";
+    private final Application mContext = ApplicationProvider.getApplicationContext();
+    private final Drawable mWalletLogo = mContext.getDrawable(android.R.drawable.ic_lock_lock);
+    private final Intent mWalletIntent = new Intent(QuickAccessWalletService.ACTION_VIEW_WALLET)
+            .setComponent(new ComponentName(mContext.getPackageName(), "WalletActivity"));
+
+
     @Mock
     QuickAccessWalletClient mWalletClient;
     @Mock
@@ -87,9 +101,18 @@ public class WalletPanelViewControllerTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        mViewController =
-                new WalletPanelViewController(mContext, mWalletClient, mPluginCallbacks, false);
-        ShadowLog.stream = System.out;
+        mViewController = new WalletPanelViewController(
+                mContext, mContext, mWalletClient, mPluginCallbacks, false);
+        doAnswer(invocation -> {
+            PendingIntent pendingIntent = invocation.getArgument(0);
+            pendingIntent.send();
+            return null;
+        }).when(mPluginCallbacks).startPendingIntentDismissingKeyguard(any());
+        when(mWalletClient.getLogo()).thenReturn(mWalletLogo);
+        when(mWalletClient.getShortcutLongLabel()).thenReturn(SHORTCUT_LONG_LABEL);
+        when(mWalletClient.getShortcutShortLabel()).thenReturn(SHORTCUT_SHORT_LABEL);
+        when(mWalletClient.getServiceLabel()).thenReturn(SERVICE_LABEL);
+        when(mWalletClient.createWalletIntent()).thenReturn(mWalletIntent);
     }
 
     /**
@@ -131,7 +154,8 @@ public class WalletPanelViewControllerTest {
     @Test
     public void onDeviceLockStateChanged_unlocked_queriesCards() {
         mViewController =
-                new WalletPanelViewController(mContext, mWalletClient, mPluginCallbacks, true);
+                new WalletPanelViewController(mContext, mContext, mWalletClient, mPluginCallbacks,
+                        true);
         when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(false);
         mViewController.queryWalletCards();
         verify(mWalletClient, never()).getWalletCards(any(), any(), any());
@@ -144,7 +168,8 @@ public class WalletPanelViewControllerTest {
     @Test
     public void onDeviceLockStateChanged_calledTwice_onlyQueriesCardsOnce() {
         mViewController =
-                new WalletPanelViewController(mContext, mWalletClient, mPluginCallbacks, true);
+                new WalletPanelViewController(mContext, mContext, mWalletClient, mPluginCallbacks,
+                        true);
         when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(false);
         mViewController.queryWalletCards();
         verify(mWalletClient, never()).getWalletCards(any(), any(), any());  // sanity check
@@ -179,7 +204,8 @@ public class WalletPanelViewControllerTest {
     @Test
     public void queryWalletCards_deviceLocked_cardsAllowedOnLockScreen_queriesCards() {
         mViewController =
-                new WalletPanelViewController(mContext, mWalletClient, mPluginCallbacks, true);
+                new WalletPanelViewController(mContext, mContext, mWalletClient, mPluginCallbacks,
+                        true);
         when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(true);
 
         mViewController.queryWalletCards();
@@ -191,7 +217,8 @@ public class WalletPanelViewControllerTest {
     @Test
     public void queryWalletCards_deviceLocked_cardsNotAllowedOnLockScreen_doesNotQueryCards() {
         mViewController =
-                new WalletPanelViewController(mContext, mWalletClient, mPluginCallbacks, true);
+                new WalletPanelViewController(mContext, mContext, mWalletClient, mPluginCallbacks,
+                        true);
         when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(false);
 
         mViewController.queryWalletCards();
@@ -210,13 +237,72 @@ public class WalletPanelViewControllerTest {
 
         mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
 
-        WalletView view = (WalletView) mViewController.getPanelContent();
-        View errorView = view.getErrorView();
-        RecyclerView carouselView = view.getCardCarousel();
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        View errorView = walletView.getErrorView();
+        RecyclerView carouselView = walletView.getCardCarousel();
         assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
         assertThat(carouselView.getVisibility()).isEqualTo(View.VISIBLE);
         int itemCount = carouselView.getAdapter().getItemCount();
         assertThat(itemCount).isEqualTo(2);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_showsCards_clickWalletButton_startsWalletActivity() {
+        mViewController.queryWalletCards();
+        verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
+                mCallbackCaptor.capture());
+        List<WalletCard> cards = Arrays.asList(createWalletCard("c1"), createWalletCard("c2"));
+        GetWalletCardsResponse response = new GetWalletCardsResponse(cards, 0);
+
+        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        RecyclerView carouselView = walletView.getCardCarousel();
+        assertThat(carouselView.getVisibility()).isEqualTo(View.VISIBLE);
+        Button walletButton = walletView.getWalletButton();
+        assertThat(walletButton.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(walletButton.getText()).isEqualTo(SHORTCUT_SHORT_LABEL);
+
+        walletButton.performClick();
+
+        Intent nextIntent = shadowOf(mContext).getNextStartedActivity();
+        assertThat(nextIntent).isEqualTo(mWalletIntent);
+        verify(mPluginCallbacks).startPendingIntentDismissingKeyguard(any());
+        verify(mPluginCallbacks).dismissGlobalActionsMenu();
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_noShortLabel_showsCardsWithoutWalletButton() {
+        when(mWalletClient.getShortcutShortLabel()).thenReturn(null);
+        mViewController.queryWalletCards();
+        verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
+                mCallbackCaptor.capture());
+        List<WalletCard> cards = Arrays.asList(createWalletCard("c1"), createWalletCard("c2"));
+        GetWalletCardsResponse response = new GetWalletCardsResponse(cards, 0);
+
+        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        RecyclerView carouselView = walletView.getCardCarousel();
+        assertThat(carouselView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(walletView.getWalletButton().getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_noWalletIntent_showsCardsWithoutWalletButton() {
+        when(mWalletClient.createWalletIntent()).thenReturn(null);
+        mViewController.queryWalletCards();
+        verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
+                mCallbackCaptor.capture());
+        List<WalletCard> cards = Arrays.asList(createWalletCard("c1"), createWalletCard("c2"));
+        GetWalletCardsResponse response = new GetWalletCardsResponse(cards, 0);
+
+        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        RecyclerView carouselView = walletView.getCardCarousel();
+        assertThat(carouselView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(walletView.getWalletButton().getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
@@ -230,8 +316,8 @@ public class WalletPanelViewControllerTest {
 
         mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
 
-        WalletView view = (WalletView) mViewController.getPanelContent();
-        WalletCardCarousel carouselView = view.getCardCarousel();
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        WalletCardCarousel carouselView = walletView.getCardCarousel();
         int itemCount = carouselView.getAdapter().getItemCount();
         assertThat(itemCount).isEqualTo(0);
     }
@@ -251,6 +337,78 @@ public class WalletPanelViewControllerTest {
         assertThat(view.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
         assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(errorView.getText()).isEqualTo(errorMessage);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_cardDataEmpty_showsEmptyState() {
+        mViewController.queryWalletCards();
+        verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
+                mCallbackCaptor.capture());
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+
+        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        ViewGroup emptyStateView = walletView.getEmptyStateView();
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
+        assertThat(walletView.getErrorView().getVisibility()).isEqualTo(View.GONE);
+        assertThat(emptyStateView.getVisibility()).isEqualTo(View.VISIBLE);
+        // empty state view should have icon and text provided by client
+        assertThat(emptyStateView.<TextView>requireViewById(R.id.title).getText()).isEqualTo(
+                SHORTCUT_LONG_LABEL);
+        assertThat(emptyStateView.<ImageView>requireViewById(R.id.icon).getDrawable())
+                .isEqualTo(mWalletLogo);
+        assertThat(emptyStateView.<ImageView>requireViewById(R.id.icon).getContentDescription())
+                .isEqualTo(SERVICE_LABEL);
+
+        // clicking on the button should start the activity
+        emptyStateView.performClick();
+
+        verify(mPluginCallbacks).startPendingIntentDismissingKeyguard(any());
+        verify(mPluginCallbacks).dismissGlobalActionsMenu();
+        Intent nextIntent = shadowOf(mContext).getNextStartedActivity();
+        assertThat(nextIntent).isEqualTo(mWalletIntent);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_cardDataEmpty_intentIsNull_showsError() {
+        when(mWalletClient.createWalletIntent()).thenReturn(null);
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+
+        mViewController.onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        TextView errorView = walletView.getErrorView();
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
+        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_cardDataEmpty_logoIsNull_showsError() {
+        when(mWalletClient.getLogo()).thenReturn(null);
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+
+        mViewController.onWalletCardsRetrieved(response);
+
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        TextView errorView = walletView.getErrorView();
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
+        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void onWalletCardsRetrieved_cardDataEmpty_labelIsNull_showsError() {
+        when(mWalletClient.getShortcutLongLabel()).thenReturn(null);
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+
+        mViewController.onWalletCardsRetrieved(response);
+
+        WalletView view = (WalletView) mViewController.getPanelContent();
+        TextView errorView = view.getErrorView();
+        assertThat(view.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
+        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test

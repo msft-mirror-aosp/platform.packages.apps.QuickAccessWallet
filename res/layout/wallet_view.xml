@@ -19,41 +19,53 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
     android:clipChildren="false">
 
     <LinearLayout
-        android:id="@+id/CardCarouselContainer"
+        android:id="@+id/card_carousel_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="24dp"
         android:orientation="vertical"
         android:clipChildren="false"
         visibility="gone">
 
         <TextView
-            android:id="@+id/CardLabel"
-            style="@style/CardLabel"
+            android:id="@+id/card_label"
+            style="@style/TextAppearance.QuickAccessWallet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:padding="8dp"
+            android:importantForAccessibility="no"
+            android:paddingBottom="4dp"
             android:drawablePadding="8dp"
             android:textAlignment="center"/>
 
         <com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel
-            android:id="@+id/CardCarousel"
+            android:id="@+id/card_carousel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
-            android:minHeight="36dp"
             android:clipChildren="false"
             android:clipToPadding="false"/>
 
+        <Button
+            android:id="@+id/wallet_button"
+            style="@style/TextAppearance.QuickAccessWallet"
+            android:background="@drawable/wallet_button_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:minHeight="0dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:textAlignment="center"
+            android:visibility="gone"/>
     </LinearLayout>
 
+    <include layout="@layout/empty_state_view" />
+
     <TextView
-        android:id="@+id/ErrorView"
+        android:id="@+id/error_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"

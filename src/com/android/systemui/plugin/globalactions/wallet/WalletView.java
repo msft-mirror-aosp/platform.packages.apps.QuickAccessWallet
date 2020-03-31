@@ -16,20 +16,28 @@
 
 package com.android.systemui.plugin.globalactions.wallet;
 
-import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel.CARD_ANIM_ALPHA_DURATION;
 import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel.CARD_ANIM_ALPHA_DELAY;
+import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel.CARD_ANIM_ALPHA_DURATION;
 
 import android.annotation.Nullable;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.List;
 
 
 /**
@@ -41,14 +49,20 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
     private static final int CAROUSEL_IN_ANIMATION_DURATION = 300;
     private static final int CAROUSEL_OUT_ANIMATION_DURATION = 200;
     private static final int CARD_LABEL_ANIM_DELAY = 133;
+    private static final String PREFS_NAME = "QuickAccessWalletView";
+    private static final String PREFS_EXPECTED_HEIGHT = "height";
+
     private final ViewGroup mCardCarouselContainer;
     private final WalletCardCarousel mCardCarousel;
     private final TextView mCardLabel;
+    private final Button mWalletButton;
     private final TextView mErrorView;
+    private final ViewGroup mEmptyStateView;
     private final int mIconSizePx;
     private final Interpolator mInInterpolator;
     private final Interpolator mOutInterpolator;
     private final float mAnimationTranslationX;
+    private final SharedPreferences mPrefs;
     private CharSequence mCenterCardText;
 
     public WalletView(Context context) {
@@ -58,17 +72,21 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
     public WalletView(Context context, AttributeSet attrs) {
         super(context, attrs);
         inflate(context, R.layout.wallet_view, this);
-        mCardCarouselContainer = findViewById(R.id.CardCarouselContainer);
-        mCardCarousel = findViewById(R.id.CardCarousel);
+        mCardCarouselContainer = requireViewById(R.id.card_carousel_container);
+        mCardCarousel = requireViewById(R.id.card_carousel);
         mCardCarousel.setCardScrollListener(this);
-        mCardLabel = findViewById(R.id.CardLabel);
-        mErrorView = findViewById(R.id.ErrorView);
+        mCardLabel = requireViewById(R.id.card_label);
+        mWalletButton = requireViewById(R.id.wallet_button);
+        mErrorView = requireViewById(R.id.error_view);
+        mEmptyStateView = requireViewById(R.id.empty_state);
         mIconSizePx = getResources().getDimensionPixelSize(R.dimen.icon_size);
         mInInterpolator =
                 AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in);
         mOutInterpolator =
                 AnimationUtils.loadInterpolator(context, android.R.interpolator.accelerate_cubic);
         mAnimationTranslationX = mCardCarousel.getCardWidthPx() / 4f;
+        mPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        setExpectedMinHeight();
     }
 
     @Override
@@ -84,10 +102,9 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         if (!TextUtils.equals(mCenterCardText, centerCardText)) {
             mCenterCardText = centerCardText;
             mCardLabel.setText(centerCardText);
-            int iconSizePx = mCardLabel.getLineHeight();
             Drawable icon = centerCard.getIcon();
             if (icon != null) {
-                icon.setBounds(0, 0, iconSizePx, iconSizePx);
+                icon.setBounds(0, 0, mIconSizePx, mIconSizePx);
             }
             mCardLabel.setCompoundDrawablesRelative(icon, null, null, null);
         }
@@ -98,9 +115,30 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         }
     }
 
-    void showCardCarousel(boolean shouldAnimate) {
+    void showCardCarousel(List<WalletCardViewInfo> data, int selectedIndex,
+            @Nullable CharSequence walletButtonLabel,
+            @Nullable OnClickListener walletButtonClickListener) {
+
+        boolean shouldAnimate = mCardCarousel.setData(data, selectedIndex);
+
+        if (TextUtils.isEmpty(walletButtonLabel) || walletButtonClickListener == null) {
+            mWalletButton.setVisibility(GONE);
+        } else {
+            mWalletButton.setText(walletButtonLabel);
+            mWalletButton.setOnClickListener(walletButtonClickListener);
+            mWalletButton.setVisibility(VISIBLE);
+            if (shouldAnimate) {
+                mWalletButton.setAlpha(0f);
+                mWalletButton.animate().alpha(1f)
+                        .setStartDelay(CARD_LABEL_ANIM_DELAY)
+                        .setDuration(CARD_ANIM_ALPHA_DURATION)
+                        .start();
+            }
+        }
+
         mCardCarouselContainer.setVisibility(VISIBLE);
         mErrorView.setVisibility(GONE);
+        mEmptyStateView.setVisibility(GONE);
         if (shouldAnimate) {
             mCardLabel.setAlpha(0f);
             mCardLabel.animate().alpha(1f)
@@ -113,9 +151,13 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
                     .setDuration(CAROUSEL_IN_ANIMATION_DURATION)
                     .start();
         }
+        removeMinHeightAndRecordHeightOnLayout();
     }
 
     void animateDismissal() {
+        if (mCardCarouselContainer.getVisibility() != VISIBLE) {
+            return;
+        }
         mCardCarousel.animate().translationX(mAnimationTranslationX)
                 .setInterpolator(mOutInterpolator)
                 .setDuration(CAROUSEL_OUT_ANIMATION_DURATION)
@@ -125,6 +167,19 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
                 .setDuration(CARD_ANIM_ALPHA_DURATION)
                 .setStartDelay(CARD_ANIM_ALPHA_DELAY)
                 .start();
+    }
+
+    void showEmptyStateView(Drawable logo, CharSequence logoContentDescription, CharSequence label,
+            OnClickListener clickListener) {
+        mEmptyStateView.setVisibility(VISIBLE);
+        mErrorView.setVisibility(GONE);
+        mCardCarouselContainer.setVisibility(GONE);
+        ImageView logoView = mEmptyStateView.<ImageView>requireViewById(R.id.icon);
+        logoView.setImageDrawable(logo);
+        logoView.setContentDescription(logoContentDescription);
+        mEmptyStateView.<TextView>requireViewById(R.id.title).setText(label);
+        mEmptyStateView.setOnClickListener(clickListener);
+        removeMinHeightAndRecordHeightOnLayout();
     }
 
     void showDeviceLockedMessage() {
@@ -138,25 +193,65 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mErrorView.setText(message);
         mErrorView.setVisibility(VISIBLE);
         mCardCarouselContainer.setVisibility(GONE);
+        mEmptyStateView.setVisibility(GONE);
     }
 
     void hideErrorMessage() {
         mErrorView.setVisibility(GONE);
     }
 
-    WalletCardCarousel getCardCarousel() {
-        return mCardCarousel;
+    /**
+     * The total view height depends on whether cards are shown or not. Since it is not known at
+     * construction time whether cards will be available, the best we can do is set the height to
+     * whatever it was the last time. Setting the height correctly ahead of time is important
+     * because Home Controls are shown below the wallet and may be displayed before card data is
+     * loaded.
+     */
+    private void setExpectedMinHeight() {
+        int expectedHeight = mPrefs.getInt(PREFS_EXPECTED_HEIGHT, 0);
+        if (expectedHeight == 0) {
+            expectedHeight = getResources().getDimensionPixelSize(R.dimen.min_wallet_empty_height);
+        }
+        setMinimumHeight(expectedHeight);
     }
 
-    TextView getErrorView() {
-        return mErrorView;
-    }
-
-    ViewGroup getCardCarouselContainer() {
-        return mCardCarouselContainer;
+    private void removeMinHeightAndRecordHeightOnLayout() {
+        setMinimumHeight(0);
+        addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                removeOnLayoutChangeListener(this);
+                mPrefs.edit().putInt(PREFS_EXPECTED_HEIGHT, bottom - top).apply();
+            }
+        });
     }
 
     int getIconSizePx() {
         return mIconSizePx;
+    }
+
+    WalletCardCarousel getCardCarousel() {
+        return mCardCarousel;
+    }
+
+    @VisibleForTesting
+    TextView getErrorView() {
+        return mErrorView;
+    }
+
+    @VisibleForTesting
+    ViewGroup getEmptyStateView() {
+        return mEmptyStateView;
+    }
+
+    @VisibleForTesting
+    ViewGroup getCardCarouselContainer() {
+        return mCardCarouselContainer;
+    }
+
+    @VisibleForTesting
+    Button getWalletButton() {
+        return mWalletButton;
     }
 }
