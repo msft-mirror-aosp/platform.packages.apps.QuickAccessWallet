@@ -18,6 +18,7 @@ package com.android.systemui.plugin.globalactions.wallet;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import android.service.quickaccesswallet.QuickAccessWalletClient;
 import android.service.quickaccesswallet.SelectWalletCardRequest;
 import android.service.quickaccesswallet.WalletCard;
 import android.service.quickaccesswallet.WalletServiceEvent;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -51,6 +53,7 @@ public class WalletPanelViewController implements
     private static final int MAX_CARDS = 10;
     private static final long SELECTION_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(30);
 
+    private final Context mSysuiContext;
     private final Context mPluginContext;
     private final QuickAccessWalletClient mWalletClient;
     private final WalletView mWalletView;
@@ -65,10 +68,12 @@ public class WalletPanelViewController implements
     private String mSelectedCardId;
 
     public WalletPanelViewController(
+            Context sysuiContext,
             Context pluginContext,
             QuickAccessWalletClient walletClient,
             GlobalActionsPanelPlugin.Callbacks pluginCallbacks,
             boolean isDeviceLocked) {
+        mSysuiContext = sysuiContext;
         mPluginContext = pluginContext;
         mWalletClient = walletClient;
         mPluginCallbacks = pluginCallbacks;
@@ -157,19 +162,25 @@ public class WalletPanelViewController implements
      */
     @Override
     public void onWalletCardsRetrieved(GetWalletCardsResponse response) {
+        if (mIsDismissed) {
+            return;
+        }
         List<WalletCard> walletCards = response.getWalletCards();
-        // TODO: if walletCards is empty, show empty state view
         List<WalletCardViewInfo> data = new ArrayList<>(walletCards.size());
         for (WalletCard card : walletCards) {
             data.add(new QAWalletCardViewInfo(card));
         }
+
         // Get on main thread for UI updates
         mWalletView.post(() -> {
             if (mIsDismissed) {
                 return;
             }
-            boolean animate = mWalletCardCarousel.setData(data, response.getSelectedIndex());
-            mWalletView.showCardCarousel(animate);
+            if (data.isEmpty()) {
+                showEmptyStateView();
+            } else {
+                showCardCarousel(data, response.getSelectedIndex());
+            }
         });
     }
 
@@ -257,6 +268,41 @@ public class WalletPanelViewController implements
             return;
         }
         PendingIntent pendingIntent = ((QAWalletCardViewInfo) card).mWalletCard.getPendingIntent();
+        startPendingIntent(pendingIntent);
+    }
+
+    private void showCardCarousel(List<WalletCardViewInfo> data, int selectedIndex) {
+        CharSequence label = mWalletClient.getShortcutShortLabel();
+        Intent intent = mWalletClient.createWalletIntent();
+        if (TextUtils.isEmpty(label) || intent == null) {
+            mWalletView.showCardCarousel(data, selectedIndex, null, null);
+        } else {
+            mWalletView.showCardCarousel(data, selectedIndex, label, v -> startIntent(intent));
+        }
+    }
+
+    private void showEmptyStateView() {
+        Drawable logo = mWalletClient.getLogo();
+        CharSequence logoContentDesc = mWalletClient.getServiceLabel();
+        CharSequence label = mWalletClient.getShortcutLongLabel();
+        Intent intent = mWalletClient.createWalletIntent();
+        if (logo == null
+                || TextUtils.isEmpty(logoContentDesc)
+                || TextUtils.isEmpty(label)
+                || intent == null) {
+            mWalletView.showErrorMessage(null);
+        } else {
+            mWalletView.showEmptyStateView(logo, logoContentDesc, label, v -> startIntent(intent));
+        }
+    }
+
+    private void startIntent(Intent intent) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(mSysuiContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+        startPendingIntent(pendingIntent);
+    }
+
+    private void startPendingIntent(PendingIntent pendingIntent) {
         mPluginCallbacks.startPendingIntentDismissingKeyguard(pendingIntent);
         mPluginCallbacks.dismissGlobalActionsMenu();
         onDismissed();

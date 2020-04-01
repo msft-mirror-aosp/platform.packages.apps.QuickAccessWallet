@@ -16,14 +16,17 @@
  -->
 <resources>
 
-  <style name="CardLabel">
-    <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
-    <item name="android:textStyle">normal</item>
-    <item name="android:textSize">14sp</item>
-    <item name="android:letterSpacing">0.025</item>
-    <item name="android:textColor">#f1f3f4</item>
-    <item name="android:maxLines">1</item>
+  <style name="TextAppearance" />
 
+  <style name="TextAppearance.QuickAccessWallet">
+    <item name="android:fontFamily">@*android:string/config_headlineFontFamily</item>
+    <item name="android:textColor">@color/wallet_primary_text</item>
+    <item name="android:singleLine">true</item>
+    <item name="android:textSize">14sp</item>
+  </style>
+
+  <style name="TextAppearance.QuickAccessWallet.Title">
+    <item name="android:textSize">18sp</item>
   </style>
 
 </resources>
