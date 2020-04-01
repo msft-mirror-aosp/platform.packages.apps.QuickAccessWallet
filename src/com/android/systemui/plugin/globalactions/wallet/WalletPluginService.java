@@ -71,8 +71,8 @@ public class WalletPluginService implements GlobalActionsPanelPlugin {
         if (!client.isWalletServiceAvailable() || !client.isWalletFeatureAvailable()) {
             return null;
         }
-        WalletPanelViewController panelViewController =
-                new WalletPanelViewController(mPluginContext, client, callbacks, isDeviceLocked);
+        WalletPanelViewController panelViewController = new WalletPanelViewController(
+                mSysuiContext, mPluginContext, client, callbacks, isDeviceLocked);
         panelViewController.queryWalletCards();
         return panelViewController;
     }
