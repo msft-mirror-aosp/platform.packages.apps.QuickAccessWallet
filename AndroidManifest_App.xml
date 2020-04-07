@@ -16,7 +16,9 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.systemui.plugin.globalactions.wallet">
+          package="com.android.systemui.plugin.globalactions.wallet"
+          android:versionCode="10000000"
+          android:versionName="1.0.0.0">
 
     <uses-sdk
         android:minSdkVersion="30"
