@@ -21,18 +21,21 @@ import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarouse
 
 import android.annotation.Nullable;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.ContextThemeWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -49,20 +52,19 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
     private static final int CAROUSEL_IN_ANIMATION_DURATION = 300;
     private static final int CAROUSEL_OUT_ANIMATION_DURATION = 200;
     private static final int CARD_LABEL_ANIM_DELAY = 133;
-    private static final String PREFS_NAME = "QuickAccessWalletView";
-    private static final String PREFS_EXPECTED_HEIGHT = "height";
 
     private final ViewGroup mCardCarouselContainer;
     private final WalletCardCarousel mCardCarousel;
     private final TextView mCardLabel;
-    private final Button mWalletButton;
     private final TextView mErrorView;
     private final ViewGroup mEmptyStateView;
+    private final ImageView mOverflowButton;
+    private final ArrayAdapter<OverflowItem> mOverflowAdapter;
+    private final ListPopupWindow mOverflowPopup;
     private final int mIconSizePx;
     private final Interpolator mInInterpolator;
     private final Interpolator mOutInterpolator;
     private final float mAnimationTranslationX;
-    private final SharedPreferences mPrefs;
     private CharSequence mCenterCardText;
 
     public WalletView(Context context) {
@@ -76,7 +78,10 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mCardCarousel = requireViewById(R.id.card_carousel);
         mCardCarousel.setCardScrollListener(this);
         mCardLabel = requireViewById(R.id.card_label);
-        mWalletButton = requireViewById(R.id.wallet_button);
+        mOverflowButton = requireViewById(R.id.menu_btn);
+        mOverflowAdapter = new ArrayAdapter<>(context, R.layout.wallet_more_item);
+        mOverflowPopup = createOverflowPopup(context, mOverflowButton);
+        mOverflowButton.setOnClickListener(v -> mOverflowPopup.show());
         mErrorView = requireViewById(R.id.error_view);
         mEmptyStateView = requireViewById(R.id.empty_state);
         mIconSizePx = getResources().getDimensionPixelSize(R.dimen.icon_size);
@@ -85,8 +90,6 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mOutInterpolator =
                 AnimationUtils.loadInterpolator(context, android.R.interpolator.accelerate_cubic);
         mAnimationTranslationX = mCardCarousel.getCardWidthPx() / 4f;
-        mPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        setExpectedMinHeight();
     }
 
     @Override
@@ -115,33 +118,24 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         }
     }
 
-    void showCardCarousel(List<WalletCardViewInfo> data, int selectedIndex,
-            @Nullable CharSequence walletButtonLabel,
-            @Nullable OnClickListener walletButtonClickListener) {
-
+    void showCardCarousel(
+            List<WalletCardViewInfo> data, int selectedIndex, OverflowItem[] menuItems) {
         boolean shouldAnimate = mCardCarousel.setData(data, selectedIndex);
-
-        if (TextUtils.isEmpty(walletButtonLabel) || walletButtonClickListener == null) {
-            mWalletButton.setVisibility(GONE);
-        } else {
-            mWalletButton.setText(walletButtonLabel);
-            mWalletButton.setOnClickListener(walletButtonClickListener);
-            mWalletButton.setVisibility(VISIBLE);
-            if (shouldAnimate) {
-                mWalletButton.setAlpha(0f);
-                mWalletButton.animate().alpha(1f)
-                        .setStartDelay(CARD_LABEL_ANIM_DELAY)
-                        .setDuration(CARD_ANIM_ALPHA_DURATION)
-                        .start();
-            }
-        }
-
+        mOverflowAdapter.clear();
+        mOverflowAdapter.addAll(menuItems);
+        updateOverflowPopupWidth(menuItems);
         mCardCarouselContainer.setVisibility(VISIBLE);
+
         mErrorView.setVisibility(GONE);
         mEmptyStateView.setVisibility(GONE);
         if (shouldAnimate) {
             mCardLabel.setAlpha(0f);
             mCardLabel.animate().alpha(1f)
+                    .setStartDelay(CARD_LABEL_ANIM_DELAY)
+                    .setDuration(CARD_ANIM_ALPHA_DURATION)
+                    .start();
+            mOverflowButton.setAlpha(0f);
+            mOverflowButton.animate().alpha(1f)
                     .setStartDelay(CARD_LABEL_ANIM_DELAY)
                     .setDuration(CARD_ANIM_ALPHA_DURATION)
                     .start();
@@ -151,13 +145,13 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
                     .setDuration(CAROUSEL_IN_ANIMATION_DURATION)
                     .start();
         }
-        removeMinHeightAndRecordHeightOnLayout();
     }
 
     void animateDismissal() {
         if (mCardCarouselContainer.getVisibility() != VISIBLE) {
             return;
         }
+        mOverflowPopup.dismiss();
         mCardCarousel.animate().translationX(mAnimationTranslationX)
                 .setInterpolator(mOutInterpolator)
                 .setDuration(CAROUSEL_OUT_ANIMATION_DURATION)
@@ -174,12 +168,11 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mEmptyStateView.setVisibility(VISIBLE);
         mErrorView.setVisibility(GONE);
         mCardCarouselContainer.setVisibility(GONE);
-        ImageView logoView = mEmptyStateView.<ImageView>requireViewById(R.id.icon);
+        ImageView logoView = mEmptyStateView.requireViewById(R.id.icon);
         logoView.setImageDrawable(logo);
         logoView.setContentDescription(logoContentDescription);
         mEmptyStateView.<TextView>requireViewById(R.id.title).setText(label);
         mEmptyStateView.setOnClickListener(clickListener);
-        removeMinHeightAndRecordHeightOnLayout();
     }
 
     void showDeviceLockedMessage() {
@@ -196,35 +189,54 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mEmptyStateView.setVisibility(GONE);
     }
 
+    static class OverflowItem {
+        final CharSequence label;
+        final Runnable onClickListener;
+
+        OverflowItem(CharSequence label, Runnable onClickListener) {
+            this.label = label;
+            this.onClickListener = onClickListener;
+        }
+
+        @Override
+        public String toString() {
+            return label.toString();
+        }
+    }
+
+    private ListPopupWindow createOverflowPopup(Context context, View overflowButton) {
+        ListPopupWindow popup = new ListPopupWindow(
+                new ContextThemeWrapper(context, R.style.Wallet_ListPopupWindow));
+        popup.setWindowLayoutType(WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY);
+        popup.setAnchorView(overflowButton);
+        popup.setAdapter(mOverflowAdapter);
+        popup.setModal(true);
+        popup.setOnItemClickListener((parent, view, position, id) -> {
+            mOverflowAdapter.getItem(position).onClickListener.run();
+            popup.dismiss();
+        });
+        return popup;
+    }
+
+    private void updateOverflowPopupWidth(OverflowItem[] overflowItems) {
+        int itemWidth = getMaxOverflowItemWidth(overflowItems);
+        int itemPadding = getResources().getDimensionPixelSize(R.dimen.wallet_more_padding) * 2;
+        mOverflowPopup.setContentWidth(itemWidth + itemPadding);
+    }
+
+    private int getMaxOverflowItemWidth(OverflowItem[] overflowItems) {
+        Paint paint = new Paint();
+        float textSize = getResources().getDimension(R.dimen.wallet_text_size);
+        paint.setTextSize(textSize);
+        float maxWidth = 0;
+        for (OverflowItem item : overflowItems) {
+            maxWidth = Math.max(maxWidth, paint.measureText(item.toString()));
+        }
+        return Math.round(maxWidth);
+    }
+
     void hideErrorMessage() {
         mErrorView.setVisibility(GONE);
-    }
-
-    /**
-     * The total view height depends on whether cards are shown or not. Since it is not known at
-     * construction time whether cards will be available, the best we can do is set the height to
-     * whatever it was the last time. Setting the height correctly ahead of time is important
-     * because Home Controls are shown below the wallet and may be displayed before card data is
-     * loaded.
-     */
-    private void setExpectedMinHeight() {
-        int expectedHeight = mPrefs.getInt(PREFS_EXPECTED_HEIGHT, 0);
-        if (expectedHeight == 0) {
-            expectedHeight = getResources().getDimensionPixelSize(R.dimen.min_wallet_empty_height);
-        }
-        setMinimumHeight(expectedHeight);
-    }
-
-    private void removeMinHeightAndRecordHeightOnLayout() {
-        setMinimumHeight(0);
-        addOnLayoutChangeListener(new OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                removeOnLayoutChangeListener(this);
-                mPrefs.edit().putInt(PREFS_EXPECTED_HEIGHT, bottom - top).apply();
-            }
-        });
     }
 
     int getIconSizePx() {
@@ -251,7 +263,12 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
     }
 
     @VisibleForTesting
-    Button getWalletButton() {
-        return mWalletButton;
+    View getOverflowIcon() {
+        return mOverflowButton;
+    }
+
+    @VisibleForTesting
+    ListPopupWindow getOverflowPopup() {
+        return mOverflowPopup;
     }
 }

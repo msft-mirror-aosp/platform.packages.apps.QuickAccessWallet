@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = Build.VERSION_CODES.R)
@@ -40,6 +41,7 @@ public class WalletPluginServiceTest {
         MockitoAnnotations.initMocks(this);
         mPluginService = new WalletPluginService();
         mPluginService.onCreate(mContext, mContext);
+        ShadowLog.stream = System.out;
     }
 
     @Test
@@ -49,8 +51,6 @@ public class WalletPluginServiceTest {
                 cr, Settings.Secure.GLOBAL_ACTIONS_PANEL_AVAILABLE, -1)).isEqualTo(1);
         assertThat(Settings.Secure.getInt(
                 cr, Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED, -1)).isEqualTo(1);
-
-
     }
 
     @Test
