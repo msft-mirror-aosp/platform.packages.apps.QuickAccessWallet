@@ -24,7 +24,6 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -60,12 +59,14 @@ class WalletCardCarousel extends RecyclerView {
     static final int CARD_ANIM_ALPHA_DURATION = 100;
     static final int CARD_ANIM_ALPHA_DELAY = 50;
 
+    private final int mScreenWidth;
     private final int mCardMarginPx;
     private final Rect mSystemGestureExclusionZone = new Rect();
     private final WalletCardAdapter mWalletCardAdapter;
     private final int mCardWidthPx;
     private final int mCardHeightPx;
     private final float mCornerRadiusPx;
+    private final int mTotalCardWidth;
     private final float mCardEdgeToCenterDistance;
     private final GestureDetector mOnTapGestureDetector;
 
@@ -111,17 +112,14 @@ class WalletCardCarousel extends RecyclerView {
         super(context, attributeSet);
         setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int screenWidth = Math.min(metrics.widthPixels, metrics.heightPixels);
-        mCardWidthPx = Math.round(screenWidth * CARD_SCREEN_WIDTH_RATIO);
+        mScreenWidth = Math.min(metrics.widthPixels, metrics.heightPixels);
+        mCardWidthPx = Math.round(mScreenWidth * CARD_SCREEN_WIDTH_RATIO);
         mCardHeightPx = Math.round(mCardWidthPx / CARD_ASPECT_RATIO);
         mCornerRadiusPx = mCardWidthPx * CORNER_RADIUS_RATIO;
-        mCardMarginPx = Math.round(screenWidth * CARD_MARGIN_RATIO);
-        int totalCardWidth =
+        mCardMarginPx = Math.round(mScreenWidth * CARD_MARGIN_RATIO);
+        mTotalCardWidth =
                 mCardWidthPx + getResources().getDimensionPixelSize(R.dimen.card_margin) * 2;
-        mCardEdgeToCenterDistance = totalCardWidth / 2f;
-        int paddingHorizontal = (screenWidth - totalCardWidth) / 2 - mCardMarginPx;
-        paddingHorizontal = Math.max(0, paddingHorizontal); // just in case
-        setPadding(paddingHorizontal, getPaddingTop(), paddingHorizontal, getPaddingBottom());
+        mCardEdgeToCenterDistance = mTotalCardWidth / 2f;
         addOnScrollListener(new CardCarouselScrollListener());
         new CarouselSnapHelper().attachToRecyclerView(this);
         mWalletCardAdapter = new WalletCardAdapter();
@@ -129,6 +127,7 @@ class WalletCardCarousel extends RecyclerView {
         setAdapter(mWalletCardAdapter);
         mOnTapGestureDetector = new GestureDetector(context, new OnTapGestureDetector());
         ViewCompat.setAccessibilityDelegate(this, new CardCarouselAccessibilityDelegate(this));
+        updatePadding(mScreenWidth);
     }
 
     @Override
@@ -143,10 +142,37 @@ class WalletCardCarousel extends RecyclerView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        int width = getWidth();
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             // Whole carousel is opted out from system gesture.
-            mSystemGestureExclusionZone.set(0, 0, getWidth(), getHeight());
+            mSystemGestureExclusionZone.set(0, 0, width, getHeight());
             setSystemGestureExclusionRects(Collections.singletonList(mSystemGestureExclusionZone));
+        }
+        if (width != mScreenWidth) {
+            updatePadding(width);
+        }
+    }
+
+    /**
+     * The padding pushes the first and last cards in the list to the center when they are selected.
+     */
+    private void updatePadding(int viewWidth) {
+        int paddingHorizontal = (viewWidth - mTotalCardWidth) / 2 - mCardMarginPx;
+        paddingHorizontal = Math.max(0, paddingHorizontal); // just in case
+        setPadding(paddingHorizontal, getPaddingTop(), paddingHorizontal, getPaddingBottom());
+
+        // re-center selected card after changing padding (if card is selected)
+        if (mWalletCardAdapter != null
+                && mWalletCardAdapter.getItemCount() > 0
+                && mCenteredAdapterPosition != NO_POSITION) {
+            ViewHolder viewHolder = findViewHolderForAdapterPosition(mCenteredAdapterPosition);
+            if (viewHolder != null) {
+                View cardView = viewHolder.itemView;
+                int cardCenter = (cardView.getLeft() + cardView.getRight()) / 2;
+                int viewCenter = (getLeft() + getRight()) / 2;
+                int scrollX = cardCenter - viewCenter;
+                scrollBy(scrollX, 0);
+            }
         }
     }
 
@@ -440,8 +466,8 @@ class WalletCardCarousel extends RecyclerView {
         @Override
         public boolean onRequestSendAccessibilityEvent(
                 ViewGroup viewGroup, View view, AccessibilityEvent accessibilityEvent) {
-            if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
-                Log.e("FELIX", String.format("CardCarouselAccessibilityDelegate onRequestSendAccessibilityEvent: focus"));
+            int eventType = accessibilityEvent.getEventType();
+            if (eventType == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
                 scrollToPosition(getChildAdapterPosition(view));
             }
             return super.onRequestSendAccessibilityEvent(viewGroup, view, accessibilityEvent);
