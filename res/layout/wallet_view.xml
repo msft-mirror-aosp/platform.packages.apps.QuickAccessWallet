@@ -28,18 +28,36 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:clipChildren="false"
-        visibility="gone">
+        android:visibility="gone">
 
-        <TextView
-            android:id="@+id/card_label"
-            style="@style/TextAppearance.QuickAccessWallet"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:importantForAccessibility="no"
-            android:paddingBottom="4dp"
-            android:drawablePadding="8dp"
-            android:textAlignment="center"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/card_label"
+                style="@style/Wallet.TextAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:paddingBottom="4dp"
+                android:drawablePadding="8dp"
+                android:textAlignment="center"/>
+
+            <ImageView
+                android:id="@+id/menu_btn"
+                android:src="@drawable/ic_more_vert"
+                android:layout_gravity="center|right"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:tint="@color/wallet_more_vert"
+                android:contentDescription="@strings/accessibility_menu"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:theme="@style/Wallet.Theme"
+            />
+        </FrameLayout>
 
         <com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel
             android:id="@+id/card_carousel"
@@ -47,22 +65,9 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"/>
-
-        <Button
-            android:id="@+id/wallet_button"
-            style="@style/TextAppearance.QuickAccessWallet"
-            android:background="@drawable/wallet_button_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:minHeight="0dp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:textAlignment="center"
-            android:visibility="gone"/>
     </LinearLayout>
 
-    <include layout="@layout/empty_state_view" />
+    <include layout="@layout/empty_state_view"/>
 
     <TextView
         android:id="@+id/error_view"
