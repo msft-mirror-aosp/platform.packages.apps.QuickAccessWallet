@@ -26,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -62,6 +64,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
@@ -438,6 +441,28 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
+    public void onWalletCardsRetrieved_isDelayed_showsError() {
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        TextView errorView = walletView.getErrorView();
+        ViewGroup cardCarouselContainer = walletView.getCardCarouselContainer();
+        ViewGroup emptyStateView = walletView.getEmptyStateView();
+
+        mViewController.queryWalletCards();
+        Robolectric.getForegroundThreadScheduler().advanceBy(3, SECONDS);
+
+        assertThat(emptyStateView.getVisibility()).isEqualTo(View.GONE);
+        assertThat(cardCarouselContainer.getVisibility()).isEqualTo(View.GONE);
+        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+        mViewController.onWalletCardsRetrieved(response);
+
+        assertThat(emptyStateView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(cardCarouselContainer.getVisibility()).isEqualTo(View.GONE);
+        assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
     public void onWalletServiceEvent_tapStarted_dismissesGlobalActionsMenu() {
         mViewController.queryWalletCards();
         verify(mWalletClient).addWalletServiceEventListener(mListenerCaptor.capture());
@@ -516,7 +541,7 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
-    public void onSingleTapUp_dismissesWallet() {
+    public void onSingleTapUp_doesNotdismissWallet() {
         mViewController.queryWalletCards();
         verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
                 mCallbackCaptor.capture());
@@ -535,9 +560,9 @@ public class WalletPanelViewControllerTest {
         view.onTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_UP, 0, 0, 0));
 
         verify(mPluginCallbacks, never()).startPendingIntentDismissingKeyguard(any());
-        verify(mPluginCallbacks).dismissGlobalActionsMenu();
-        verify(mWalletClient).notifyWalletDismissed();
-        verify(mWalletClient).removeWalletServiceEventListener(any());
+        verify(mPluginCallbacks, never()).dismissGlobalActionsMenu();
+        verify(mWalletClient, never()).notifyWalletDismissed();
+        verify(mWalletClient, never()).removeWalletServiceEventListener(any());
     }
 
     private WalletCard createWalletCard(String cardId) {
