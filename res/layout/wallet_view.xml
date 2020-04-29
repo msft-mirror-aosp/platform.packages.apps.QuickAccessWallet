@@ -30,7 +30,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="48dp">
 
             <TextView
                 android:id="@+id/card_label"
@@ -45,7 +45,7 @@
             <ImageView
                 android:id="@+id/menu_btn"
                 android:src="@drawable/ic_more_vert"
-                android:layout_gravity="center|right"
+                android:layout_gravity="center|end"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:padding="12dp"
