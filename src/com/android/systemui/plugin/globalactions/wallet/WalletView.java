@@ -124,8 +124,8 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mOverflowAdapter.clear();
         mOverflowAdapter.addAll(menuItems);
         updateOverflowPopupWidth(menuItems);
+        mOverflowButton.setVisibility(menuItems.length == 0 ? GONE : VISIBLE);
         mCardCarouselContainer.setVisibility(VISIBLE);
-
         mErrorView.setVisibility(GONE);
         mEmptyStateView.setVisibility(GONE);
         if (shouldAnimate) {
