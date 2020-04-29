@@ -8,4 +8,6 @@
     <!-- Content description for emergency icon in the peek view for the emergency info card. [CHAR LIMIT=NONE] -->
     <!-- Message shown when an unknown failure occurred when fetching cards. [CHAR LIMIT=NONE] -->
     <string name="error_generic">There was a problem getting your cards, please try again later</string>
+    <!-- Overflow menu option directing user to System Settings -->
+    <string name="settings">Settings</string>
 </resources>
