@@ -24,10 +24,8 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -68,7 +66,6 @@ class WalletCardCarousel extends RecyclerView {
     private final float mCornerRadiusPx;
     private final int mTotalCardWidth;
     private final float mCardEdgeToCenterDistance;
-    private final GestureDetector mOnTapGestureDetector;
 
     private OnSelectionListener mSelectionListener;
     private OnCardScrollListener mCardScrollListener;
@@ -92,11 +89,6 @@ class WalletCardCarousel extends RecyclerView {
          * The card was clicked.
          */
         void onCardClicked(@NonNull WalletCardViewInfo card);
-
-        /**
-         * The view was tapped outside of a card view.
-         */
-        void onDismissGesture();
     }
 
     interface OnCardScrollListener {
@@ -125,7 +117,6 @@ class WalletCardCarousel extends RecyclerView {
         mWalletCardAdapter = new WalletCardAdapter();
         mWalletCardAdapter.setHasStableIds(true);
         setAdapter(mWalletCardAdapter);
-        mOnTapGestureDetector = new GestureDetector(context, new OnTapGestureDetector());
         ViewCompat.setAccessibilityDelegate(this, new CardCarouselAccessibilityDelegate(this));
         updatePadding(mScreenWidth);
     }
@@ -154,7 +145,8 @@ class WalletCardCarousel extends RecyclerView {
     }
 
     /**
-     * The padding pushes the first and last cards in the list to the center when they are selected.
+     * The padding pushes the first and last cards in the list to the center when they are
+     * selected.
      */
     private void updatePadding(int viewWidth) {
         int paddingHorizontal = (viewWidth - mTotalCardWidth) / 2 - mCardMarginPx;
@@ -174,14 +166,6 @@ class WalletCardCarousel extends RecyclerView {
                 scrollBy(scrollX, 0);
             }
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        if (mOnTapGestureDetector.onTouchEvent(e)) {
-            mSelectionListener.onDismissGesture();
-        }
-        return super.onTouchEvent(e);
     }
 
     void setSelectionListener(OnSelectionListener selectionListener) {
@@ -442,18 +426,6 @@ class WalletCardCarousel extends RecyclerView {
         private void setData(List<WalletCardViewInfo> data) {
             this.mData = data;
             notifyDataSetChanged();
-        }
-    }
-
-    private static class OnTapGestureDetector extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return true;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            return true;
         }
     }
 
