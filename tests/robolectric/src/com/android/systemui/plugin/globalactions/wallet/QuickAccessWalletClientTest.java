@@ -174,15 +174,13 @@ public class QuickAccessWalletClientTest {
         ContentResolver cr = mContext.getContentResolver();
         mWalletClient = QuickAccessWalletClient.create(mContext);
 
-        assertThat(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).isFalse();
-
-        Settings.Secure.putInt(cr, Settings.Secure.LOCK_SCREEN_SHOW_NOTIFICATIONS, 1);
-
-        assertThat(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).isFalse();
-
-        Settings.Secure.putInt(cr, Settings.Secure.LOCK_SCREEN_ALLOW_PRIVATE_NOTIFICATIONS, 1);
+        Settings.Secure.putInt(cr, Settings.Secure.POWER_MENU_LOCKED_SHOW_CONTENT, 1);
 
         assertThat(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).isTrue();
+
+        Settings.Secure.putInt(cr, Settings.Secure.POWER_MENU_LOCKED_SHOW_CONTENT, 0);
+
+        assertThat(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).isFalse();
     }
 
     private void setDefaultPaymentApp(String pkg) {
