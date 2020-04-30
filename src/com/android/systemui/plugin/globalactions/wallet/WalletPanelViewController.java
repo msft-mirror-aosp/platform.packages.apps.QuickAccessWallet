@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.android.systemui.plugin.globalactions.wallet.WalletView.OverflowItem;
 import com.android.systemui.plugins.GlobalActionsPanelPlugin;
 
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class WalletPanelViewController implements
     private boolean mIsDismissed;
     private boolean mHasRegisteredListener;
     private String mSelectedCardId;
+    private boolean mResponseReceived;
 
     public WalletPanelViewController(
             Context sysuiContext,
@@ -161,6 +163,14 @@ public class WalletPanelViewController implements
         GetWalletCardsRequest request =
                 new GetWalletCardsRequest(cardWidthPx, cardHeightPx, iconSizePx, MAX_CARDS);
         mWalletClient.getWalletCards(mExecutor, request, this);
+        mHandler.postDelayed(this::showErrorIfResponseUnavailable, 2000);
+    }
+
+    private void showErrorIfResponseUnavailable() {
+        if (mIsDismissed || mResponseReceived) {
+            return;
+        }
+        mWalletView.showErrorMessage(null);
     }
 
     /**
@@ -183,10 +193,11 @@ public class WalletPanelViewController implements
             if (mIsDismissed) {
                 return;
             }
+            mResponseReceived = true;
             if (data.isEmpty()) {
                 showEmptyStateView();
             } else {
-                showCardCarousel(data, response.getSelectedIndex());
+                mWalletView.showCardCarousel(data, response.getSelectedIndex(), getOverflowItems());
             }
             removeMinHeightAndRecordHeightOnLayout();
         });
@@ -202,6 +213,7 @@ public class WalletPanelViewController implements
             if (mIsDismissed) {
                 return;
             }
+            mResponseReceived = true;
             mWalletView.showErrorMessage(error.getMessage());
         });
     }
@@ -241,19 +253,6 @@ public class WalletPanelViewController implements
         selectCard();
     }
 
-    /**
-     * Implements {@link WalletCardCarousel.OnSelectionListener}. Called when the user taps on the
-     * view outside of a card target which should cause the wallet to be dismissed.
-     */
-    @Override
-    public void onDismissGesture() {
-        if (mIsDismissed) {
-            return;
-        }
-        mPluginCallbacks.dismissGlobalActionsMenu();
-        onDismissed();
-    }
-
     private void selectCard() {
         mHandler.removeCallbacks(mSelectionRunnable);
         String selectedCardId = mSelectedCardId;
@@ -279,24 +278,21 @@ public class WalletPanelViewController implements
         startPendingIntent(pendingIntent);
     }
 
-    private void showCardCarousel(List<WalletCardViewInfo> data, int selectedIndex) {
-        mWalletView.showCardCarousel(data, selectedIndex, getOverflowItems());
-    }
-
-    private WalletView.OverflowItem[] getOverflowItems() {
+    private OverflowItem[] getOverflowItems() {
+        if (mIsDeviceLocked) {
+            // Hide overflow menu when device is locked
+            return new OverflowItem[0];
+        }
         CharSequence walletLabel = mWalletClient.getShortcutShortLabel();
         Intent walletIntent = mWalletClient.createWalletIntent();
-        CharSequence settingsLabel =
-                mSysuiContext.getString(com.android.internal.R.string.global_action_settings);
+        CharSequence settingsLabel = mPluginContext.getString(R.string.settings);
         Intent settingsIntent = new Intent(SETTINGS_ACTION).setPackage(SETTINGS_PKG);
-        WalletView.OverflowItem settingsItem =
-                new WalletView.OverflowItem(settingsLabel, () -> startIntent(settingsIntent));
+        OverflowItem settings = new OverflowItem(settingsLabel, () -> startIntent(settingsIntent));
         if (!TextUtils.isEmpty(walletLabel) && walletIntent != null) {
-            return new WalletView.OverflowItem[]{
-                    new WalletView.OverflowItem(walletLabel, () -> startIntent(walletIntent)),
-                    settingsItem};
+            OverflowItem wallet = new OverflowItem(walletLabel, () -> startIntent(walletIntent));
+            return new OverflowItem[]{wallet, settings};
         } else {
-            return new WalletView.OverflowItem[]{settingsItem};
+            return new OverflowItem[]{settings};
         }
     }
 

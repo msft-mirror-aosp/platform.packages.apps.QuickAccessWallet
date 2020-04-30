@@ -15,11 +15,9 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="24dp"
     android:clipChildren="false">
 
     <LinearLayout
@@ -32,7 +30,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="48dp">
 
             <TextView
                 android:id="@+id/card_label"
@@ -41,22 +39,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
-                android:paddingBottom="4dp"
                 android:drawablePadding="8dp"
-                android:textAlignment="center"/>
+                android:textAlignment="center" />
 
             <ImageView
                 android:id="@+id/menu_btn"
                 android:src="@drawable/ic_more_vert"
-                android:layout_gravity="center|right"
+                android:layout_gravity="center|end"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:padding="12dp"
                 android:tint="@color/wallet_more_vert"
                 android:contentDescription="@strings/accessibility_menu"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:theme="@style/Wallet.Theme"
-            />
+                android:theme="@style/Wallet.Theme" />
         </FrameLayout>
 
         <com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel
@@ -64,25 +60,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipChildren="false"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false" />
     </LinearLayout>
 
-    <include layout="@layout/empty_state_view"/>
+    <include layout="@layout/empty_state_view" />
 
     <TextView
         android:id="@+id/error_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp"
+        android:layout_marginHorizontal="40dp"
         android:textSize="14sp"
         android:textColor="#DADCE0"
-        android:padding="15dp"
         android:elevation="7dp"
         android:background="@drawable/rounded_corners"
         android:gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </FrameLayout>
