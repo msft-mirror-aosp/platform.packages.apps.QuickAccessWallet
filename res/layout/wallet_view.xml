@@ -46,11 +46,11 @@
                 android:id="@+id/menu_btn"
                 android:src="@drawable/ic_more_vert"
                 android:layout_gravity="center|end"
-                android:layout_width="48dp"
+                android:layout_width="@dimen/wallet_menu_btn_size"
                 android:layout_height="48dp"
                 android:padding="12dp"
                 android:tint="@color/wallet_more_vert"
-                android:contentDescription="@strings/accessibility_menu"
+                android:contentDescription="@string/global_actions_settings_description"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:theme="@style/Wallet.Theme" />
         </FrameLayout>
