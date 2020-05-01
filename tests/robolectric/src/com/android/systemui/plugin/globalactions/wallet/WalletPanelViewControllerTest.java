@@ -335,30 +335,6 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
-    public void onWalletCardsRetrieved_deviceLocked_doesNotShowOverflowMenu() {
-        when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(true);
-        mViewController.onDeviceLockStateChanged(true);
-        verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
-                mCallbackCaptor.capture());
-        List<WalletCard> cards = Arrays.asList(createWalletCard("c1"), createWalletCard("c2"));
-        GetWalletCardsResponse response = new GetWalletCardsResponse(cards, 0);
-
-        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
-
-        WalletView walletView = (WalletView) mViewController.getPanelContent();
-        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(walletView.getOverflowIcon().getVisibility()).isEqualTo(View.GONE);
-
-        mViewController.onDeviceLockStateChanged(false);
-        verify(mWalletClient, times(2)).getWalletCards(any(), mRequestCaptor.capture(),
-                mCallbackCaptor.capture());
-        mCallbackCaptor.getValue().onWalletCardsRetrieved(response);
-
-        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(walletView.getOverflowIcon().getVisibility()).isEqualTo(View.VISIBLE);
-    }
-
-    @Test
     public void onWalletCardsRetrieved_dismissed_doesNotShowCards() {
         mViewController.queryWalletCards();
         verify(mWalletClient).getWalletCards(any(), mRequestCaptor.capture(),
