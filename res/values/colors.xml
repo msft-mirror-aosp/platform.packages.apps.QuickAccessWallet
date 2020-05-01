@@ -16,8 +16,11 @@
   -->
 <resources>
     <color name="wallet_grey_100">#F1F3F4</color>
+    <color name="wallet_grey_500">#9AA0A6</color>
+    <color name="wallet_grey_800">#3C4043</color>
     <color name="wallet_grey_900">#202124</color>
     <color name="wallet_primary_text">@color/wallet_grey_100</color>
     <color name="wallet_more_vert">@*android:color/foreground_material_dark</color>
+    <color name="wallet_secondary_text">@color/wallet_grey_500</color>
 
 </resources>
