@@ -279,10 +279,6 @@ public class WalletPanelViewController implements
     }
 
     private OverflowItem[] getOverflowItems() {
-        if (mIsDeviceLocked) {
-            // Hide overflow menu when device is locked
-            return new OverflowItem[0];
-        }
         CharSequence walletLabel = mWalletClient.getShortcutShortLabel();
         Intent walletIntent = mWalletClient.createWalletIntent();
         CharSequence settingsLabel = mPluginContext.getString(R.string.settings);

@@ -21,6 +21,7 @@ import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarouse
 
 import android.annotation.Nullable;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -80,7 +81,7 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mCardLabel = requireViewById(R.id.card_label);
         mOverflowButton = requireViewById(R.id.menu_btn);
         mOverflowAdapter = new ArrayAdapter<>(context, R.layout.wallet_more_item);
-        mOverflowPopup = createOverflowPopup(context, mOverflowButton);
+        mOverflowPopup = createOverflowPopup(context);
         mOverflowButton.setOnClickListener(v -> mOverflowPopup.show());
         mErrorView = requireViewById(R.id.error_view);
         mEmptyStateView = requireViewById(R.id.empty_state);
@@ -204,13 +205,15 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         }
     }
 
-    private ListPopupWindow createOverflowPopup(Context context, View overflowButton) {
+    private ListPopupWindow createOverflowPopup(Context context) {
         ListPopupWindow popup = new ListPopupWindow(
                 new ContextThemeWrapper(context, R.style.Wallet_ListPopupWindow));
         popup.setWindowLayoutType(WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY);
-        popup.setAnchorView(overflowButton);
-        popup.setAdapter(mOverflowAdapter);
         popup.setModal(true);
+        popup.setAnchorView(mOverflowButton);
+        popup.setAdapter(mOverflowAdapter);
+        int overflowIconSize = getResources().getDimensionPixelSize(R.dimen.wallet_menu_btn_size);
+        popup.setVerticalOffset(-overflowIconSize / 2);
         popup.setOnItemClickListener((parent, view, position, id) -> {
             mOverflowAdapter.getItem(position).onClickListener.run();
             popup.dismiss();
@@ -219,20 +222,26 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
     }
 
     private void updateOverflowPopupWidth(OverflowItem[] overflowItems) {
-        int itemWidth = getMaxOverflowItemWidth(overflowItems);
-        int itemPadding = getResources().getDimensionPixelSize(R.dimen.wallet_more_padding) * 2;
-        mOverflowPopup.setContentWidth(itemWidth + itemPadding);
-    }
-
-    private int getMaxOverflowItemWidth(OverflowItem[] overflowItems) {
-        Paint paint = new Paint();
-        float textSize = getResources().getDimension(R.dimen.wallet_text_size);
-        paint.setTextSize(textSize);
-        float maxWidth = 0;
-        for (OverflowItem item : overflowItems) {
-            maxWidth = Math.max(maxWidth, paint.measureText(item.toString()));
+        if (overflowItems.length == 0) {
+            return;
         }
-        return Math.round(maxWidth);
+        Paint paint = new Paint();
+        float textSize = getResources().getDimension(R.dimen.wallet_more_text_size);
+        paint.setTextSize(textSize);
+        float maxItemWidth = 0;
+        for (OverflowItem item : overflowItems) {
+            maxItemWidth = Math.max(maxItemWidth, paint.measureText(item.toString()));
+        }
+        int itemPadding = getResources().getDimensionPixelSize(R.dimen.wallet_more_padding);
+        float width = maxItemWidth + itemPadding * 2;
+        // width should be between [.5, .9] of screen
+        int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        width = Math.max(screenWidth * 0.5f, width);
+        width = Math.min(screenWidth * 0.9f, width);
+        int contentWidth = Math.round(width);
+        mOverflowPopup.setContentWidth(contentWidth);
+        int overflowIconSize = getResources().getDimensionPixelSize(R.dimen.wallet_menu_btn_size);
+        mOverflowPopup.setHorizontalOffset(overflowIconSize / 2 - contentWidth);
     }
 
     void hideErrorMessage() {
