@@ -400,66 +400,36 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
-    public void onWalletCardsRetrieved_cardDataEmpty_intentIsNull_showsError() {
+    public void onWalletCardsRetrieved_cardDataEmpty_intentIsNull_hidesWallet() {
         when(mWalletClient.createWalletIntent()).thenReturn(null);
         GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
 
         mViewController.onWalletCardsRetrieved(response);
 
         WalletView walletView = (WalletView) mViewController.getPanelContent();
-        TextView errorView = walletView.getErrorView();
-        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(View.GONE);
+        assertThat(walletView.getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
-    public void onWalletCardsRetrieved_cardDataEmpty_logoIsNull_showsError() {
+    public void onWalletCardsRetrieved_cardDataEmpty_logoIsNull_hidesWallet() {
         when(mWalletClient.getLogo()).thenReturn(null);
         GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
 
         mViewController.onWalletCardsRetrieved(response);
 
         WalletView walletView = (WalletView) mViewController.getPanelContent();
-        TextView errorView = walletView.getErrorView();
-        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(View.GONE);
+        assertThat(walletView.getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
-    public void onWalletCardsRetrieved_cardDataEmpty_labelIsNull_showsError() {
+    public void onWalletCardsRetrieved_cardDataEmpty_labelIsNull_hidesWallet() {
         when(mWalletClient.getShortcutLongLabel()).thenReturn(null);
         GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
 
         mViewController.onWalletCardsRetrieved(response);
 
-        WalletView view = (WalletView) mViewController.getPanelContent();
-        TextView errorView = view.getErrorView();
-        assertThat(view.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
-    }
-
-    @Test
-    public void onWalletCardsRetrieved_isDelayed_showsError() {
         WalletView walletView = (WalletView) mViewController.getPanelContent();
-        TextView errorView = walletView.getErrorView();
-        ViewGroup cardCarouselContainer = walletView.getCardCarouselContainer();
-        ViewGroup emptyStateView = walletView.getEmptyStateView();
-
-        mViewController.queryWalletCards();
-        Robolectric.getForegroundThreadScheduler().advanceBy(3, SECONDS);
-
-        assertThat(emptyStateView.getVisibility()).isEqualTo(View.GONE);
-        assertThat(cardCarouselContainer.getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
-
-        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
-        mViewController.onWalletCardsRetrieved(response);
-
-        assertThat(emptyStateView.getVisibility()).isEqualTo(View.VISIBLE);
-        assertThat(cardCarouselContainer.getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
+        assertThat(walletView.getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test
