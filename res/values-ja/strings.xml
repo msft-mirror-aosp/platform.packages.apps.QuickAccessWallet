@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="3088770324409338404">"お支払い情報を読み込むには、スマートフォンのロックを解除してください"</string>
+    <string name="global_actions_settings_description" msgid="4155073614584825529">"タップすると、カードやパスの設定が電源メニューに表示されます"</string>
+    <!-- no translation found for error_generic (5736597066829262527) -->
+    <skip />
+    <!-- no translation found for settings (4740257901811398113) -->
+    <skip />
+</resources>

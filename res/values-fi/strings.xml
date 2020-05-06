@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="error_user_locked" msgid="3088770324409338404">"Avaa puhelimen lukitus ladataksesi maksutiedot"</string>
+    <string name="global_actions_settings_description" msgid="4155073614584825529">"Katso korttien asetukset virtavalikossa napauttamalla"</string>
+    <!-- no translation found for error_generic (5736597066829262527) -->
+    <skip />
+    <!-- no translation found for settings (4740257901811398113) -->
+    <skip />
+</resources>
