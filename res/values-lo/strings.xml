@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_user_locked" msgid="5209473749586235404">"ປົດລັອກໂທລະສັບຂອງທ່ານເພື່ອໂຫຼດຂໍ້ມູນການຈ່າຍເງິນຂອງທ່ານ"</string>
-    <string name="global_actions_settings_description" msgid="1509614996705592717">"ແຕະເພື່ອເບິ່ງການຕັ້ງຄ່າສຳລັບບັດ ແລະ ປີ້ຕ່າງໆໃນເມນູເປີດປິດ"</string>
-</resources>
