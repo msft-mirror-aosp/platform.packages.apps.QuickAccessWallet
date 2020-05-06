@@ -190,6 +190,10 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mEmptyStateView.setVisibility(GONE);
     }
 
+    void hide() {
+        setVisibility(GONE);
+    }
+
     static class OverflowItem {
         final CharSequence label;
         final Runnable onClickListener;
