@@ -27,7 +27,8 @@
     <!-- For using plugins -->
     <uses-permission android:name="com.android.systemui.permission.PLUGIN" />
 
-    <application>
+    <application
+        android:supportsRtl="true">
 
         <service android:name=".WalletPluginService"
                  android:exported="false">
