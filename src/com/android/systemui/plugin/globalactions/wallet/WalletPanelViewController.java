@@ -72,7 +72,6 @@ public class WalletPanelViewController implements
     private boolean mIsDismissed;
     private boolean mHasRegisteredListener;
     private String mSelectedCardId;
-    private boolean mResponseReceived;
 
     public WalletPanelViewController(
             Context sysuiContext,
@@ -163,14 +162,6 @@ public class WalletPanelViewController implements
         GetWalletCardsRequest request =
                 new GetWalletCardsRequest(cardWidthPx, cardHeightPx, iconSizePx, MAX_CARDS);
         mWalletClient.getWalletCards(mExecutor, request, this);
-        mHandler.postDelayed(this::showErrorIfResponseUnavailable, 2000);
-    }
-
-    private void showErrorIfResponseUnavailable() {
-        if (mIsDismissed || mResponseReceived) {
-            return;
-        }
-        mWalletView.showErrorMessage(null);
     }
 
     /**
@@ -193,7 +184,6 @@ public class WalletPanelViewController implements
             if (mIsDismissed) {
                 return;
             }
-            mResponseReceived = true;
             if (data.isEmpty()) {
                 showEmptyStateView();
             } else {
@@ -213,7 +203,6 @@ public class WalletPanelViewController implements
             if (mIsDismissed) {
                 return;
             }
-            mResponseReceived = true;
             mWalletView.showErrorMessage(error.getMessage());
         });
     }
@@ -301,7 +290,11 @@ public class WalletPanelViewController implements
                 || TextUtils.isEmpty(logoContentDesc)
                 || TextUtils.isEmpty(label)
                 || intent == null) {
-            mWalletView.showErrorMessage(null);
+            Log.w(TAG, "QuickAccessWalletService manifest entry mis-configured");
+            // Issue is not likely to be resolved until manifest entries are enabled.
+            // Hide wallet feature until then.
+            mWalletView.hide();
+            mPrefs.edit().putInt(PREFS_WALLET_VIEW_HEIGHT, 0).apply();
         } else {
             mWalletView.showEmptyStateView(logo, logoContentDesc, label, v -> startIntent(intent));
         }
@@ -327,8 +320,8 @@ public class WalletPanelViewController implements
      * loaded, causing the home controls to jump down when card data arrives.
      */
     private int getExpectedMinHeight() {
-        int expectedHeight = mPrefs.getInt(PREFS_WALLET_VIEW_HEIGHT, 0);
-        if (expectedHeight == 0) {
+        int expectedHeight = mPrefs.getInt(PREFS_WALLET_VIEW_HEIGHT, -1);
+        if (expectedHeight == -1) {
             Resources res = mPluginContext.getResources();
             expectedHeight = res.getDimensionPixelSize(R.dimen.min_wallet_empty_height);
         }
