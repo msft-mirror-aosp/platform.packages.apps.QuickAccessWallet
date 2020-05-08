@@ -22,12 +22,12 @@
         android:id="@+id/empty_state"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="40dp"
-        android:paddingBottom="40dp"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/wallet_empty_state_bg"
+        android:orientation="vertical"
+        android:paddingVertical="52dp"
+        android:theme="@style/Wallet.Theme"
         android:visibility="gone">
 
         <ImageView
@@ -39,7 +39,7 @@
             android:scaleType="fitCenter"/>
 
         <TextView
-            style="@style/Wallet.TextAppearance.Title"
+            style="@style/Wallet.TextAppearance"
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
