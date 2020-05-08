@@ -24,6 +24,7 @@
         android:id="@+id/card_carousel_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:orientation="vertical"
         android:clipChildren="false"
         android:visibility="gone">
@@ -47,10 +48,10 @@
                 android:src="@drawable/ic_more_vert"
                 android:layout_gravity="center|end"
                 android:layout_width="@dimen/wallet_menu_btn_size"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/wallet_menu_btn_size"
                 android:padding="12dp"
                 android:tint="@color/wallet_more_vert"
-                android:contentDescription="@string/global_actions_settings_description"
+                android:contentDescription="@string/accessibility_menu"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:theme="@style/Wallet.Theme" />
         </FrameLayout>
