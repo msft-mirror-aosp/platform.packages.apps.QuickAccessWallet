@@ -37,7 +37,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.android.systemui.plugin.globalactions.wallet.WalletView.OverflowItem;
+import com.android.systemui.plugin.globalactions.wallet.WalletPopupMenu.OverflowItem;
 import com.android.systemui.plugins.GlobalActionsPanelPlugin;
 
 import java.util.ArrayList;
