@@ -2,9 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"解锁手机以加载您的付款信息"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"点按即可在电源菜单中查看银行卡和卡券设置"</string>
-    <!-- no translation found for error_generic (5736597066829262527) -->
+    <!-- no translation found for accessibility_menu (1982506521504867550) -->
     <skip />
-    <!-- no translation found for settings (4740257901811398113) -->
-    <skip />
+    <string name="error_generic" msgid="5736597066829262527">"获取您的卡片时出现问题，请稍后重试"</string>
+    <string name="settings" msgid="4740257901811398113">"设置"</string>
 </resources>

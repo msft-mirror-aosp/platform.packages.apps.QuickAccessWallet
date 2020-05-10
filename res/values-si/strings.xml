@@ -2,9 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"ඔබේ ගෙවීම් තොරතුරු පූරණයට ඔබේ දුරකථනය අඟුලු අරින්න"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"බල මෙනුව තුළ කාඩ්පත් සහ බලපත්‍ර සඳහා වන සැකසීම් බැලීමට තට්ටු කරන්න"</string>
-    <!-- no translation found for error_generic (5736597066829262527) -->
+    <!-- no translation found for accessibility_menu (1982506521504867550) -->
     <skip />
-    <!-- no translation found for settings (4740257901811398113) -->
-    <skip />
+    <string name="error_generic" msgid="5736597066829262527">"ඔබේ කාඩ්පත ලබා ගැනීමේ ගැටලුවක් විය, කරුණාකර පසුව නැවත උත්සාහ කරන්න"</string>
+    <string name="settings" msgid="4740257901811398113">"සැකසීම්"</string>
 </resources>

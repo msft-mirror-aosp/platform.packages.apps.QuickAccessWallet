@@ -2,7 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"ଆପଣଙ୍କର ପେମେଣ୍ଟ ସୂଚନା ଲୋଡ୍ କରିବା ପାଇଁ ଆପଣଙ୍କର ଫୋନ୍ ଅନ୍‌ଲକ୍ କରନ୍ତୁ"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"ପାୱର୍ ମେନୁରେ କାର୍ଡ ଓ ପାସ୍‌ର ସେଟିଂସ୍ ଦେଖିବା ପାଇଁ ଟାପ୍ କରନ୍ତୁ"</string>
+    <!-- no translation found for accessibility_menu (1982506521504867550) -->
+    <skip />
     <!-- no translation found for error_generic (5736597066829262527) -->
     <skip />
     <!-- no translation found for settings (4740257901811398113) -->

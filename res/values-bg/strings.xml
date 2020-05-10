@@ -2,9 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"Отключете телефона, за да заредите данните си за плащане"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"Докоснете, за да видите настройките за карти и пропуски в менюто за захранване"</string>
-    <!-- no translation found for error_generic (5736597066829262527) -->
-    <skip />
-    <!-- no translation found for settings (4740257901811398113) -->
-    <skip />
+    <string name="accessibility_menu" msgid="1982506521504867550">"Меню"</string>
+    <string name="error_generic" msgid="5736597066829262527">"При извличането на картите ви възникна проблем. Моля, опитайте отново по-късно."</string>
+    <string name="settings" msgid="4740257901811398113">"Настройки"</string>
 </resources>
