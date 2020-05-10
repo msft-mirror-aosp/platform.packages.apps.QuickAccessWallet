@@ -2,7 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"ਆਪਣੀ ਭੁਗਤਾਨ ਜਾਣਕਾਰੀ ਲੋਡ ਕਰਨ ਲਈ ਆਪਣਾ ਫ਼ੋਨ ਅਣਲਾਕ ਕਰੋ"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"ਪਾਵਰ ਮੀਨੂ ਵਿੱਚ ਕਾਰਡਾਂ ਅਤੇ ਪਾਸਾਂ ਲਈ ਸੈਟਿੰਗਾਂ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
+    <!-- no translation found for accessibility_menu (1982506521504867550) -->
+    <skip />
     <!-- no translation found for error_generic (5736597066829262527) -->
     <skip />
     <!-- no translation found for settings (4740257901811398113) -->
