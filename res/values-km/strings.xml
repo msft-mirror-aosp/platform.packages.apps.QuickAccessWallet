@@ -2,9 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_user_locked" msgid="3088770324409338404">"ដោះសោទូរសព្ទរបស់អ្នក ដើម្បីផ្ទុកព័ត៌មានបង់ប្រាក់"</string>
-    <string name="global_actions_settings_description" msgid="4155073614584825529">"ចុច​ដើម្បី​មើល​ការកំណត់​សម្រាប់កាត និង​សំបុត្រ​នៅក្នុង​ម៉ឺនុយ​ប៊ូតុង​ថាមពល"</string>
-    <!-- no translation found for error_generic (5736597066829262527) -->
+    <!-- no translation found for accessibility_menu (1982506521504867550) -->
     <skip />
-    <!-- no translation found for settings (4740257901811398113) -->
-    <skip />
+    <string name="error_generic" msgid="5736597066829262527">"មានបញ្ហា​ក្នុងការទាញយក​កាត​របស់អ្នក សូម​ព្យាយាមម្ដងទៀត​នៅពេលក្រោយ"</string>
+    <string name="settings" msgid="4740257901811398113">"ការកំណត់"</string>
 </resources>
