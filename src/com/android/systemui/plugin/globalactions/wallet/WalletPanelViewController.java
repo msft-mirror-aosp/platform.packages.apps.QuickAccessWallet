@@ -129,8 +129,8 @@ public class WalletPanelViewController implements
      */
     @Override
     public void onDeviceLockStateChanged(boolean deviceLocked) {
-        if (mIsDismissed || mIsDeviceLocked == deviceLocked) {
-            // Disregard repeat events
+        if (mIsDismissed || mIsDeviceLocked == deviceLocked || !mIsDeviceLocked) {
+            // Disregard repeat events and events after unlock
             return;
         }
         mIsDeviceLocked = deviceLocked;
