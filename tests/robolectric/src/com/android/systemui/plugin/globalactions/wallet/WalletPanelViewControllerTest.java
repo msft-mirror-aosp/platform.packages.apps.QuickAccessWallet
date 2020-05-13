@@ -185,6 +185,32 @@ public class WalletPanelViewControllerTest {
         verify(mWalletClient).getWalletCards(any(), any(), any());
     }
 
+    /**
+     * There is currently a bug in KeyguardStateController that causes it to report that the device
+     * is unlocked, then locked, after biometric unlock. It should not respond to reports that the
+     * phone has become locked after it is unlocked.
+     */
+    @Test
+    public void onDeviceLockStateChanged_unlocked_locked_queriesCardsAndDoesNotHide() {
+        mViewController =
+                new WalletPanelViewController(mContext, mContext, mWalletClient, mPluginCallbacks,
+                        true);
+        when(mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()).thenReturn(false);
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        View errorView = walletView.getErrorView();
+
+        mViewController.queryWalletCards();
+
+        verify(mWalletClient, never()).getWalletCards(any(), any(), any());
+        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+
+        mViewController.onDeviceLockStateChanged(false);
+        mViewController.onDeviceLockStateChanged(true);
+
+        verify(mWalletClient).getWalletCards(any(), any(), any());
+        assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
+    }
+
     @Test
     public void queryWalletCards_registersListenerAndRequestsWalletCards() {
         mViewController.queryWalletCards();
