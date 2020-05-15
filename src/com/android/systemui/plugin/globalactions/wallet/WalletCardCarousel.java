@@ -78,6 +78,8 @@ class WalletCardCarousel extends RecyclerView {
     private int mNumCardsToAnimate;
     // When card data is loaded, this is the position of the leftmost card to be animated.
     private int mCardAnimationStartPosition;
+    // When card data is loaded, the animations may be delayed so that other animations can complete
+    private int mExtraAnimationDelay;
 
     interface OnSelectionListener {
         /**
@@ -249,6 +251,10 @@ class WalletCardCarousel extends RecyclerView {
         }
     }
 
+    void setExtraAnimationDelay(int extraAnimationDelay) {
+        mExtraAnimationDelay = extraAnimationDelay;
+    }
+
     private class CardCarouselScrollListener extends OnScrollListener {
 
         private int oldState = -1;
@@ -405,7 +411,9 @@ class WalletCardCarousel extends RecyclerView {
             if (mNumCardsToAnimate > 0 && (position - mCardAnimationStartPosition < 2)) {
                 mNumCardsToAnimate--;
                 // Animation of cards is progressively delayed from left to right in 50ms increments
-                int startDelay = (position - mCardAnimationStartPosition) * CARD_ANIM_ALPHA_DELAY;
+                // Additional delay may be added if the empty state view needs to be animated first.
+                int startDelay = (position - mCardAnimationStartPosition) * CARD_ANIM_ALPHA_DELAY
+                        + mExtraAnimationDelay;
                 viewHolder.itemView.setAlpha(0f);
                 viewHolder.itemView.animate().alpha(1f)
                         .setStartDelay(Math.max(0, startDelay))
