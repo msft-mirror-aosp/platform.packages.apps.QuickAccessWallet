@@ -19,6 +19,8 @@ package com.android.systemui.plugin.globalactions.wallet;
 import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel.CARD_ANIM_ALPHA_DELAY;
 import static com.android.systemui.plugin.globalactions.wallet.WalletCardCarousel.CARD_ANIM_ALPHA_DURATION;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -120,22 +122,39 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         mOverflowButton.setVisibility(menuItems.length == 0 ? GONE : VISIBLE);
         mCardCarouselContainer.setVisibility(VISIBLE);
         mErrorView.setVisibility(GONE);
-        mEmptyStateView.setVisibility(GONE);
         if (shouldAnimate) {
+            // If the empty state is visible, animate it away and delay the card carousel animation
+            int emptyStateAnimDelay = 0;
+            if (mEmptyStateView.getVisibility() == VISIBLE) {
+                emptyStateAnimDelay = CARD_ANIM_ALPHA_DURATION;
+                mEmptyStateView.animate()
+                        .alpha(0)
+                        .setDuration(emptyStateAnimDelay)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                mEmptyStateView.setVisibility(GONE);
+                            }
+                        })
+                        .start();
+            }
+
             mCardLabel.setAlpha(0f);
             mCardLabel.animate().alpha(1f)
-                    .setStartDelay(CARD_LABEL_ANIM_DELAY)
+                    .setStartDelay(CARD_LABEL_ANIM_DELAY + emptyStateAnimDelay)
                     .setDuration(CARD_ANIM_ALPHA_DURATION)
                     .start();
             mOverflowButton.setAlpha(0f);
             mOverflowButton.animate().alpha(1f)
-                    .setStartDelay(CARD_LABEL_ANIM_DELAY)
+                    .setStartDelay(CARD_LABEL_ANIM_DELAY + emptyStateAnimDelay)
                     .setDuration(CARD_ANIM_ALPHA_DURATION)
                     .start();
+            mCardCarousel.setExtraAnimationDelay(emptyStateAnimDelay);
             mCardCarousel.setTranslationX(mAnimationTranslationX);
             mCardCarousel.animate().translationX(0)
                     .setInterpolator(mInInterpolator)
                     .setDuration(CAROUSEL_IN_ANIMATION_DURATION)
+                    .setStartDelay(emptyStateAnimDelay)
                     .start();
         }
     }
