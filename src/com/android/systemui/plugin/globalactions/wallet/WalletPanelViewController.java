@@ -56,6 +56,7 @@ public class WalletPanelViewController implements
     private static final int MAX_CARDS = 10;
     private static final long SELECTION_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(30);
     private static final String PREFS_WALLET_VIEW_HEIGHT = "wallet_view_height";
+    private static final String PREFS_HAS_CARDS = "has_cards";
     private static final String SETTINGS_PKG = "com.android.settings";
     private static final String SETTINGS_ACTION = SETTINGS_PKG + ".GLOBAL_ACTIONS_PANEL_SETTINGS";
     private final Context mSysuiContext;
@@ -95,6 +96,11 @@ public class WalletPanelViewController implements
         mWalletCardCarousel.setSelectionListener(this);
         mHandler = new Handler(Looper.myLooper());
         mExecutor = Executors.newSingleThreadExecutor();
+        if (!mPrefs.getBoolean(PREFS_HAS_CARDS, false)) {
+            // The empty state view is shown preemptively when cards were not returned last time
+            // to decrease perceived latency.
+            showEmptyStateView();
+        }
     }
 
     /**
@@ -189,6 +195,8 @@ public class WalletPanelViewController implements
             } else {
                 mWalletView.showCardCarousel(data, response.getSelectedIndex(), getOverflowItems());
             }
+            // The empty state view will not be shown preemptively next time if cards were returned
+            mPrefs.edit().putBoolean(PREFS_HAS_CARDS, !data.isEmpty()).apply();
             removeMinHeightAndRecordHeightOnLayout();
         });
     }
