@@ -16,6 +16,9 @@
 
 package com.android.systemui.plugin.globalactions.wallet;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -133,6 +136,41 @@ public class WalletPanelViewControllerTest {
     }
 
     @Test
+    public void init_showsEmptyStateViewIfCardsNotReturnedLastTime() {
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        GetWalletCardsResponse response = new GetWalletCardsResponse(Collections.emptyList(), 0);
+        mViewController.onWalletCardsRetrieved(response);
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(VISIBLE);
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(GONE);
+        mViewController.onDismissed();
+
+        // When re-instantiated, should show empty state view
+        mViewController = new WalletPanelViewController(
+                mContext, mContext, mWalletClient, mPluginCallbacks, false);
+        walletView = (WalletView) mViewController.getPanelContent();
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(VISIBLE);
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(GONE);
+    }
+
+    @Test
+    public void init_doesNotShowEmptyStateViewIfCardsReturnedLastTime() {
+        WalletView walletView = (WalletView) mViewController.getPanelContent();
+        List<WalletCard> cards = Collections.singletonList(createWalletCard("c1"));
+        GetWalletCardsResponse response = new GetWalletCardsResponse(cards, 0);
+        mViewController.onWalletCardsRetrieved(response);
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(GONE);
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(VISIBLE);
+        mViewController.onDismissed();
+
+        // When re-instantiated, should show empty state view
+        mViewController = new WalletPanelViewController(
+                mContext, mContext, mWalletClient, mPluginCallbacks, false);
+        walletView = (WalletView) mViewController.getPanelContent();
+        assertThat(walletView.getEmptyStateView().getVisibility()).isEqualTo(GONE);
+        assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(GONE);
+    }
+
+    @Test
     public void onDismissed_notifiesClientAndRemotesListener() {
         mViewController.queryWalletCards();
         verify(mWalletClient).addWalletServiceEventListener(mListenerCaptor.capture());
@@ -202,7 +240,7 @@ public class WalletPanelViewControllerTest {
         mViewController.queryWalletCards();
 
         verify(mWalletClient, never()).getWalletCards(any(), any(), any());
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(errorView.getVisibility()).isEqualTo(VISIBLE);
 
         mViewController.onDeviceLockStateChanged(false);
         mViewController.onDeviceLockStateChanged(true);
@@ -271,7 +309,7 @@ public class WalletPanelViewControllerTest {
         View errorView = walletView.getErrorView();
         RecyclerView carouselView = walletView.getCardCarousel();
         assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
-        assertThat(carouselView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(carouselView.getVisibility()).isEqualTo(VISIBLE);
         int itemCount = carouselView.getAdapter().getItemCount();
         assertThat(itemCount).isEqualTo(2);
     }
@@ -288,7 +326,7 @@ public class WalletPanelViewControllerTest {
 
         WalletView walletView = (WalletView) mViewController.getPanelContent();
         View overflowIcon = walletView.getOverflowIcon();
-        assertThat(overflowIcon.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(overflowIcon.getVisibility()).isEqualTo(VISIBLE);
 
         overflowIcon.performClick();
 
@@ -390,7 +428,7 @@ public class WalletPanelViewControllerTest {
         WalletView view = (WalletView) mViewController.getPanelContent();
         TextView errorView = view.getErrorView();
         assertThat(view.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
-        assertThat(errorView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(errorView.getVisibility()).isEqualTo(VISIBLE);
         assertThat(errorView.getText()).isEqualTo(errorMessage);
     }
 
@@ -407,7 +445,7 @@ public class WalletPanelViewControllerTest {
         ViewGroup emptyStateView = walletView.getEmptyStateView();
         assertThat(walletView.getCardCarouselContainer().getVisibility()).isEqualTo(View.GONE);
         assertThat(walletView.getErrorView().getVisibility()).isEqualTo(View.GONE);
-        assertThat(emptyStateView.getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(emptyStateView.getVisibility()).isEqualTo(VISIBLE);
         // empty state view should have icon and text provided by client
         assertThat(emptyStateView.<TextView>requireViewById(R.id.title).getText()).isEqualTo(
                 SHORTCUT_LONG_LABEL);
