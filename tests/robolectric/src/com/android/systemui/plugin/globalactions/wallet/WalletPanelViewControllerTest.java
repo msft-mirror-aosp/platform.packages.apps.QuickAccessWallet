@@ -240,13 +240,14 @@ public class WalletPanelViewControllerTest {
         mViewController.queryWalletCards();
 
         verify(mWalletClient, never()).getWalletCards(any(), any(), any());
-        assertThat(errorView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(walletView.getVisibility()).isEqualTo(GONE);
 
         mViewController.onDeviceLockStateChanged(false);
         mViewController.onDeviceLockStateChanged(true);
 
         verify(mWalletClient).getWalletCards(any(), any(), any());
-        assertThat(errorView.getVisibility()).isEqualTo(View.GONE);
+        assertThat(walletView.getVisibility()).isEqualTo(VISIBLE);
+        assertThat(errorView.getVisibility()).isEqualTo(GONE);
     }
 
     @Test
