@@ -158,9 +158,10 @@ public class WalletPanelViewController implements
             mHasRegisteredListener = true;
         }
         if (mIsDeviceLocked && !mWalletClient.isWalletFeatureAvailableWhenDeviceLocked()) {
-            mWalletView.showDeviceLockedMessage();
+            mWalletView.hide();
             return;
         }
+        mWalletView.show();
         mWalletView.hideErrorMessage();
         int cardWidthPx = mWalletCardCarousel.getCardWidthPx();
         int cardHeightPx = mWalletCardCarousel.getCardHeightPx();
