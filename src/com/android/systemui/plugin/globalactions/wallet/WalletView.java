@@ -205,6 +205,10 @@ class WalletView extends FrameLayout implements WalletCardCarousel.OnCardScrollL
         setVisibility(GONE);
     }
 
+    void show() {
+        setVisibility(VISIBLE);
+    }
+
     void hideErrorMessage() {
         mErrorView.setVisibility(GONE);
     }
