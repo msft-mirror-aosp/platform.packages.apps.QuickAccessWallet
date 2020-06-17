@@ -20,8 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.HapticFeedbackConstants;
@@ -136,7 +134,7 @@ class WalletCardCarousel extends RecyclerView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         int width = getWidth();
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+        if (mWalletCardAdapter.getItemCount() > 1) {
             // Whole carousel is opted out from system gesture.
             mSystemGestureExclusionZone.set(0, 0, width, getHeight());
             setSystemGestureExclusionRects(Collections.singletonList(mSystemGestureExclusionZone));
