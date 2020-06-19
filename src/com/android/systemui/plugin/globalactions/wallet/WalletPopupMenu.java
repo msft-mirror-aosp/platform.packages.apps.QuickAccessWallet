@@ -41,6 +41,7 @@ class WalletPopupMenu extends ListPopupWindow {
         super(new ContextThemeWrapper(context, R.style.Wallet_ListPopupWindow));
         mContext = context;
         setWindowLayoutType(WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY);
+        setInputMethodMode(INPUT_METHOD_NOT_NEEDED);
         setModal(true);
         setAnchorView(anchorView);
         setDropDownGravity(Gravity.END);
