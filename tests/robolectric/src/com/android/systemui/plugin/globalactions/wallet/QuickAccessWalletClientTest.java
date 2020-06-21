@@ -105,7 +105,7 @@ public class QuickAccessWalletClientTest {
     public void isWalletFeatureAvailable_happyCase() {
         setDefaultPaymentApp(mContext.getPackageName());
         registerWalletService();
-        WalletPluginService.enableFeatureInSettings(mContext);
+        WalletPluginService.updateSettingsFeatureAvailability(mContext, true);
         ContentResolver cr = mContext.getContentResolver();
         Settings.Secure.putInt(cr, Settings.Secure.USER_SETUP_COMPLETE, 1);
 
@@ -118,7 +118,7 @@ public class QuickAccessWalletClientTest {
     public void isWalletFeatureAvailable_wrongUser() {
         setDefaultPaymentApp(mContext.getPackageName());
         registerWalletService();
-        WalletPluginService.enableFeatureInSettings(mContext);
+        WalletPluginService.updateSettingsFeatureAvailability(mContext, true);
         ContentResolver cr = mContext.getContentResolver();
         Settings.Secure.putInt(cr, Settings.Secure.USER_SETUP_COMPLETE, 1);
         ShadowActivityManager.setCurrentUser(11);
@@ -132,7 +132,7 @@ public class QuickAccessWalletClientTest {
     public void isWalletFeatureAvailable_userSetupIncomplete() {
         setDefaultPaymentApp(mContext.getPackageName());
         registerWalletService();
-        WalletPluginService.enableFeatureInSettings(mContext);
+        WalletPluginService.updateSettingsFeatureAvailability(mContext, true);
         // do not set user setup complete
 
         mWalletClient = QuickAccessWalletClient.create(mContext);
@@ -144,7 +144,7 @@ public class QuickAccessWalletClientTest {
     public void isWalletFeatureAvailable_globalActionsPanelDisabled() {
         setDefaultPaymentApp(mContext.getPackageName());
         registerWalletService();
-        WalletPluginService.enableFeatureInSettings(mContext);
+        WalletPluginService.updateSettingsFeatureAvailability(mContext, true);
         ContentResolver cr = mContext.getContentResolver();
         Settings.Secure.putInt(cr,
                 Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED, 0);
@@ -159,7 +159,7 @@ public class QuickAccessWalletClientTest {
     public void isWalletFeatureAvailable_userInLockdown() {
         setDefaultPaymentApp(mContext.getPackageName());
         registerWalletService();
-        WalletPluginService.enableFeatureInSettings(mContext);
+        WalletPluginService.updateSettingsFeatureAvailability(mContext, true);
         ContentResolver cr = mContext.getContentResolver();
         Settings.Secure.putInt(cr, Settings.Secure.USER_SETUP_COMPLETE, 1);
         ShadowLockPatternUtils.sIsUserInLockdown = true;
