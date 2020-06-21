@@ -16,6 +16,9 @@
 
 package com.android.systemui.plugin.globalactions.wallet;
 
+import static android.provider.Settings.Secure.GLOBAL_ACTIONS_PANEL_AVAILABLE;
+import static android.provider.Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
@@ -44,10 +47,16 @@ public class WalletPluginService implements GlobalActionsPanelPlugin {
 
     @Override
     public void onCreate(Context sysuiContext, Context pluginContext) {
+        onCreate(sysuiContext, pluginContext, QuickAccessWalletClient.create(sysuiContext));
+    }
+
+    @VisibleForTesting
+    void onCreate(Context sysuiContext, Context pluginContext, QuickAccessWalletClient client) {
         mSysuiContext = sysuiContext;
         mPluginContext = pluginContext;
-        enableFeatureInSettings(mSysuiContext);
+        updateSettingsFeatureAvailability(mSysuiContext, client.isWalletServiceAvailable());
     }
+
 
     /**
      * Invoked when the GlobalActions menu is shown.
@@ -68,7 +77,9 @@ public class WalletPluginService implements GlobalActionsPanelPlugin {
             GlobalActionsPanelPlugin.Callbacks callbacks,
             boolean isDeviceLocked,
             QuickAccessWalletClient client) {
-        if (!client.isWalletServiceAvailable() || !client.isWalletFeatureAvailable()) {
+        boolean serviceAvailable = client.isWalletServiceAvailable();
+        updateSettingsFeatureAvailability(mSysuiContext, serviceAvailable);
+        if (!serviceAvailable || !client.isWalletFeatureAvailable()) {
             return null;
         }
         WalletPanelViewController panelViewController = new WalletPanelViewController(
@@ -89,13 +100,14 @@ public class WalletPluginService implements GlobalActionsPanelPlugin {
      * GLOBAL_ACTIONS_PANEL_ENABLED when the settings is not set effectively turns the feature on by
      * default.
      */
-    static void enableFeatureInSettings(Context context) {
+    @VisibleForTesting
+    static void updateSettingsFeatureAvailability(Context context, boolean available) {
         ContentResolver cr = context.getContentResolver();
         // Turning on the availability toggle lets users turn the feature on and off in Settings
-        Settings.Secure.putInt(cr, Settings.Secure.GLOBAL_ACTIONS_PANEL_AVAILABLE, 1);
+        Settings.Secure.putInt(cr, GLOBAL_ACTIONS_PANEL_AVAILABLE, available ? 1 : 0);
         // Enable the panel by default, but do not re-enable if the user has disabled it.
-        if (Settings.Secure.getInt(cr, Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED, -1) == -1) {
-            Settings.Secure.putInt(cr, Settings.Secure.GLOBAL_ACTIONS_PANEL_ENABLED, 1);
+        if (Settings.Secure.getInt(cr, GLOBAL_ACTIONS_PANEL_ENABLED, -1) == -1) {
+            Settings.Secure.putInt(cr, GLOBAL_ACTIONS_PANEL_ENABLED, 1);
         }
     }
 }
