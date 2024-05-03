@@ -32,4 +32,5 @@ android_robolectric_test {
         "androidx.test.ext.junit",
     ],
     upstream: true,
+    strict_mode: false,
 }
