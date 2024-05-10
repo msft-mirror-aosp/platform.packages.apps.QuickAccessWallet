@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-
 package {
+    default_team: "trendy_team_applications_google_wide_",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -30,5 +30,6 @@ android_robolectric_test {
         "androidx.test.core",
         "androidx.test.runner",
         "androidx.test.ext.junit",
-     ],
+    ],
+    upstream: true,
 }
