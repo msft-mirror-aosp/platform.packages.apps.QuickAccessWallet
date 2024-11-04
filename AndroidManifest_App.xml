@@ -22,7 +22,7 @@
 
     <uses-sdk
         android:minSdkVersion="33"
-        android:targetSdkVersion="33"/>
+        android:targetSdkVersion="35"/>
 
     <!-- For using plugins -->
     <uses-permission android:name="com.android.systemui.permission.PLUGIN" />
