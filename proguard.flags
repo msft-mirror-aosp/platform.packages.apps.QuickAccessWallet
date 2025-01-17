@@ -1,4 +1,7 @@
--keepattributes *Annotation*
+-keepattributes RuntimeVisibleAnnotations,
+                RuntimeVisibleParameterAnnotations,
+                RuntimeVisibleTypeAnnotations,
+                AnnotationDefault
 -keep class com.android.systemui.plugins.annotations.* { *; }
 -keep class com.android.systemui.plugins.GlobalActionsPanelPlugin { *; }
 -keep class com.android.systemui.plugins.GlobalActionsPanelPlugin.* { *; }
